@@ -140,7 +140,6 @@ export abstract class BaseService<T extends BaseEntity> {
         }
     }
 
-
     async update(id: string, updateDto: UpdateBaseDto): Promise<T | any> {
         try {
             const entity = await this.findOne(id);

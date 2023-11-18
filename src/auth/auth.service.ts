@@ -44,7 +44,7 @@ export class AuthService {
         payload,
         {
           secret: this.configService.get("JWT_REFRESH_TOKEN_SECRET"),
-          expiresIn: 1000 * 60 * 60 * 24 * 7, // 7 days
+          expiresIn: '7d', // 7 days
         })
     ])
     return new TokenModel(accessToken, refreshToken)

@@ -73,7 +73,7 @@ export class StorageService implements OnModuleInit {
 
         }).toFile(imagePath);
 
-        return imagePath.replace(/\\/g, '/').replace(/public/, '/uploads');
+        return imagePath.replace(/\\/g, '/').replace(/public/, '');
     }
 
     async uploadFile(type: ImageTypes | string, file: Express.Multer.File): Promise<string> {

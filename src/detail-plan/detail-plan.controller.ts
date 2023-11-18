@@ -1,36 +1,40 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, Query } from '@nestjs/common';
 import { DetailPlanService } from './detail-plan.service';
 import { CreateDetailPlanDto } from './dto/create-detail-plan.dto';
 import { UpdateDetailPlanDto } from './dto/update-detail-plan.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { DetailPlan } from './entities/detail-plan.entity';
+import { PaginationModel } from 'src/common/pagination/pagination.model';
+import { Pagination } from 'src/common/pagination/pagination.dto';
 
 @ApiTags("API Chi tiết kế hoạch")
 @Controller('detail-plan')
 export class DetailPlanController {
   constructor(private readonly detailPlanService: DetailPlanService) { }
 
-  @Post()
-  create(@Body() createDetailPlanDto: CreateDetailPlanDto) {
-    return this.detailPlanService.create(createDetailPlanDto);
+  @Post('create')
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'The detail plan has been successfully created.' })
+  async create(@Body() createDetailPlanDto: CreateDetailPlanDto): Promise<DetailPlan> {
+    return await this.detailPlanService.create(createDetailPlanDto);
   }
 
   @Get()
-  findAll() {
-    return this.detailPlanService.findAll();
+  async findAll(@Query() pagination: Pagination): Promise<PaginationModel<DetailPlan>> {
+    return await this.detailPlanService.findAll(pagination);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.detailPlanService.findOne(+id);
+  @Get('get')
+  async findOne(@Query('id') id: string): Promise<DetailPlan> {
+    return await this.detailPlanService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDetailPlanDto: UpdateDetailPlanDto) {
-    return this.detailPlanService.update(+id, updateDetailPlanDto);
+  @Patch('update')
+  async update(@Query('id') id: string, @Body() updateDetailPlanDto: UpdateDetailPlanDto): Promise<DetailPlan> {
+    return await this.detailPlanService.update(id, updateDetailPlanDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.detailPlanService.remove(+id);
+  @Delete('delete')
+  async remove(@Query('id') id: string): Promise<DetailPlan> {
+    return await this.detailPlanService.remove(id);
   }
 }

@@ -1,12 +1,13 @@
 // plan.entity.ts
 
+import { DateTimeEntity } from 'src/common/entities/DateTime.entity';
 import { DailyDivision } from 'src/daily-division/entities/daily-division.entity';
 import { DetailPlan } from 'src/detail-plan/entities/detail-plan.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Plan {
+export class Plan extends DateTimeEntity{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 

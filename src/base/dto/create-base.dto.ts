@@ -5,6 +5,9 @@ export class CreateBaseDto {
     name: string;
     @ApiProperty()
     description?: string;
-    @ApiProperty()
+    @ApiProperty({
+        default: false,
+        nullable: true
+    })
     isDeleted?: boolean;
 }

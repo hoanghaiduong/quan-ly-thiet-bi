@@ -1,12 +1,13 @@
 // detail-plan.entity.ts
 
+import { DateTimeEntity } from 'src/common/entities/DateTime.entity';
 import { Device } from 'src/device/entities/device.entity';
 import { Plan } from 'src/plan/entities/plan.entity';
 import { WorkStatus } from 'src/work-status/entities/work-status.entity';
 import { Column, Entity, PrimaryColumn, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class DetailPlan {
+export class DetailPlan extends DateTimeEntity{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 

@@ -10,9 +10,21 @@ import { DailyDivision } from 'src/daily-division/entities/daily-division.entity
 export class Device {
     @PrimaryGeneratedColumn('uuid')
     id: string;
-    @Column()
+
+    @Column({ unique: true })
     deviceName: string;
 
+    @Column({
+        nullable: true
+    })
+    photo: string;
+
+    @Column({
+        type: 'text',
+        array: true,
+        nullable: true
+    })
+    images: string[];
     @Column()
     code: string;
 

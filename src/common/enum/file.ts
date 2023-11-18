@@ -5,5 +5,6 @@ export enum FileTypes {
 }
 export enum ImageTypes {
     CARD_USER = 'users',
-
+    CARD_DEVICE = 'devices',
+    CARD_DEVICE_DETAIL = 'device_details',
 }
