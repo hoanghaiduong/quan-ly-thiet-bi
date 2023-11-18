@@ -11,18 +11,17 @@ export class DailyDivision extends DateTimeEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ nullable: true })
+    @Column({ type: 'date', nullable: true })
     workDay: Date;
 
-    @Column({ type: 'date', nullable: true })
+    @Column({ type: 'time', nullable: true })
     startTime: string;
 
-    @Column({ type: 'date', nullable: true })
+    @Column({ type: 'time', nullable: true })
     estimateFinishTime: string;
 
     @Column({ type: 'float', nullable: true })
     totalTime: number;
-
     @Column({ nullable: true, length: 500 })
     specificContents: string;
 

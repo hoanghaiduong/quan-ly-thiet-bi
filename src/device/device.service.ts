@@ -106,4 +106,15 @@ export class DeviceService {
     return device;
 
   }
+  async getRelation(id: string, relation: string): Promise<Device> {
+    const device = await this.deviceRepository.findOne({
+      where: {
+        id,
+        isDeleted: false,
+      },
+      relations: relation === "ALL" ? ["factory", "deviceType", "detailPlans", "dailyVisions"] : [relation]
+    })
+    if (!device) throw new NotFoundException(`Device ${id} not found`);
+    return device;
+  }
 }

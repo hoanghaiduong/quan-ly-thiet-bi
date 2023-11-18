@@ -13,6 +13,8 @@ import { AuthUser } from 'src/common/decorator/user.decorator';
 import { Pagination } from 'src/common/pagination/pagination.dto';
 import { UpdateUserProfileDto } from './dto/update-profile-user.dto';
 import { RolesGuard } from 'src/auth/guard/role.guard';
+import { ERelatedUser } from './type/type-query.enum';
+import { PaginationModel } from 'src/common/pagination/pagination.model';
 @ApiTags("API USER")
 @Controller('user')
 export class UserController {
@@ -67,4 +69,14 @@ export class UserController {
       role
     });
   }
+
+  @Get('get-relation-by-user')
+  @ApiQuery({
+    name: 'relation',
+    enum: ERelatedUser
+  })
+  async getFactoriesByUser(@Query('id') id: string, @Query('relation') relation: string): Promise<User> {
+    return await this.userService.getRelation(id, relation);
+  }
+
 }

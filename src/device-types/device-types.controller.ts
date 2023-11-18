@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { DeviceTypesService } from './device-types.service';
 
 import { ApiTags } from '@nestjs/swagger';
@@ -11,5 +11,9 @@ export class DeviceTypesController extends BaseController<DeviceType>{
   constructor(private readonly deviceTypesService: DeviceTypesService) { 
     super(deviceTypesService);
   }
-
+  @Get('get-devices')
+  async getDevices(@Query('device_type_id') deviceTypeId:string)
+  {
+    return await this.deviceTypesService.getDevices(deviceTypeId);
+  }
 }

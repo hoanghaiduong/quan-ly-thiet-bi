@@ -27,4 +27,14 @@ export class DeviceTypesService extends BaseService<DeviceType>{
     if (!businessModel) throw new NotFoundException('Loại thiết bị không tồn tại !');
     return businessModel;
   }
+  async getDevices(devicetypeId: string): Promise<DeviceType> {
+    const deviceType = await this.deviceTypeRepository.findOne({
+      where: {
+        id: devicetypeId
+      },
+      relations: ['devices']
+    })
+    if (!deviceType) throw new NotFoundException('Loại thiết bị không tồn tại ');
+    return deviceType;
+  }
 }

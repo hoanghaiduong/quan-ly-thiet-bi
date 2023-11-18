@@ -11,6 +11,7 @@ import { Pagination } from 'src/common/pagination/pagination.dto';
 import { Meta } from 'src/common/pagination/meta.dto';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { UpdateUserProfileDto } from './dto/update-profile-user.dto';
+import { ERelatedUser } from './type/type-query.enum';
 
 @Injectable()
 export class UserService {
@@ -46,21 +47,42 @@ export class UserService {
       throw new ApiException(ErrorMessages.BAD_REQUEST, "Error grant access admin")
     }
   }
-
-  async getUserById(id: string): Promise<User> {
-    const user = await this.usersRepository.
-      createQueryBuilder('users')
-      .where('users.id = :id', { id })
-      .getOne();
-    if (!user) {
-      throw new ApiException(ErrorMessages.USER_NOT_FOUND);
-    } else if (!user.isActived) {
-      throw new ForbiddenException("Account is locked")
-    }
-    else if (user.isDeleted) throw new BadRequestException("Account is Deleted")
+  async getRelation(id: string, relation?: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id,
+        isDeleted: false,
+        isActived: true
+      },
+      relations: [relation]
+    })
+    if (!user) throw new ApiException(ErrorMessages.USER_NOT_FOUND)
     return user;
   }
-
+  // async getUserById(id: string): Promise<User> {
+  //   const user = await this.usersRepository.
+  //     createQueryBuilder('users')
+  //     .where('users.id = :id', { id })
+  //     .getOne();
+  //   if (!user) {
+  //     throw new ApiException(ErrorMessages.USER_NOT_FOUND);
+  //   } else if (!user.isActived) {
+  //     throw new ForbiddenException("Account is locked")
+  //   }
+  //   else if (user.isDeleted) throw new BadRequestException("Account is Deleted")
+  //   return user;
+  // }
+  async getUserById(id: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id,
+        isDeleted: false,
+        isActived: true
+      }
+    })
+    if (!user) throw new ApiException(ErrorMessages.USER_NOT_FOUND);
+    return user;
+  }
   async getUserByUserName(username: string): Promise<User> {
     return await this.usersRepository.
       createQueryBuilder('users')
@@ -81,7 +103,7 @@ export class UserService {
       .take(pagination.take)
       .skip(pagination.skip)
 
-      const [users, itemCount] = await queryBuilder.getManyAndCount();
+    const [users, itemCount] = await queryBuilder.getManyAndCount();
 
     const meta = new Meta({ itemCount, pagination });
     return new PaginationModel(users, meta);

@@ -90,6 +90,7 @@ export class DailyDivisionService {
     const plan = await this.planService.findOne(dto.planId);
     const user = await this.userService.getUserById(dto.userId);
     const workStatus = await this.workStatusService.findOne(dto.workStatusId);
+    await this.userService.getUserById(dto.checkedBy);
     dailyDivision.device = device;
     dailyDivision.plan = plan;
     dailyDivision.user = user;

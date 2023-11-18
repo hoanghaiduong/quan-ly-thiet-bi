@@ -2,11 +2,12 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UploadedFiles
 import { DeviceService } from './device.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Pagination } from 'src/common/pagination/pagination.dto';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Device } from './entities/device.entity';
 import { ApiFileFields } from 'src/common/decorator/file.decorator';
+import { ERelationDevices } from './Enum/query-relation.enum';
 @ApiTags("API Thiết bị")
 @Controller('device')
 export class DeviceController {
@@ -54,5 +55,14 @@ export class DeviceController {
   @Delete('delete')
   async remove(@Query('id') id: string): Promise<Device> {
     return await this.deviceService.remove(id);
+  }
+
+  @Get('get-relation')
+  @ApiQuery({
+    name: 'relation',
+    enum: ERelationDevices
+  })
+  async getRelation(@Query('id') id: string, @Query('relation') relation: string): Promise<Device> {
+    return await this.deviceService.getRelation(id, relation);
   }
 }
