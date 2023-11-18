@@ -15,6 +15,7 @@ import { UpdateUserProfileDto } from './dto/update-profile-user.dto';
 import { RolesGuard } from 'src/auth/guard/role.guard';
 import { ERelatedUser } from './type/type-query.enum';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
+import { CreateAuthDto } from 'src/auth/dto/create-auth.dto';
 @ApiTags("API USER")
 @Controller('user')
 export class UserController {
@@ -54,6 +55,15 @@ export class UserController {
       ...dto
     });
   }
+
+
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard)
+  @Post('create')
+  async createUser(@Body() dto: CreateUserDto): Promise<User> {
+    return await this.userService.createUser(dto);
+  }
+
   ////////////////////update by admin////////////////////////////////////////////
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard)
