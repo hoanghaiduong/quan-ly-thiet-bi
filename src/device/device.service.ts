@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { Device } from './entities/device.entity';
@@ -96,13 +96,48 @@ export class DeviceService {
     this.deviceRepository.merge(device, updateDeviceDto);
     return await this.deviceRepository.save(device);
   }
+
   async updateImage(id: string, dto: UpdateImageDTO): Promise<Device | any> {
     const device = await this.findOne(id);
-    return {
-      device,
 
+    // Delete old photo
+
+    if (dto.photo) {
+      if (device.photo !== null) {
+        await this.storgeService.deleteFile(device.photo);
+        device.photo = await this.storgeService.uploadFile(`${ImageTypes.CARD_DEVICE}/${device.deviceName}`, dto.photo);
+
+      }
+      else {
+        device.photo = await this.storgeService.uploadFile(`${ImageTypes.CARD_DEVICE}/${device.deviceName}`, dto.photo);
+
+      }
     }
+
+
+    // Delete old images not included in the updated ones
+    if (dto.urlImages !== null) {//nếu có truyền ảnh muốn cập nhật
+      // Upload new images if provided
+      if (device.images !== null) {
+        const imagesToDelete = device.images.filter(oldImage => !dto.urlImages.includes(oldImage));
+        Logger.debug(imagesToDelete);
+        const deletePromises = imagesToDelete.map(oldImage => this.storgeService.deleteFile(oldImage));
+        await Promise.all(deletePromises);
+      }
+    }
+
+    if (dto.images) {
+      device.images = await this.storgeService.uploadMultiFiles(`${ImageTypes.CARD_DEVICE}/${device.deviceName}/${ImageTypes.CARD_DEVICE_DETAIL}`, dto.images);
+    }
+
+
+
+
+
+    // Save the updated device
+    return await this.deviceRepository.save(device);
   }
+
   async remove(id: string): Promise<Device> {
     const device = await this.findOne(id);
     if (!device) {
