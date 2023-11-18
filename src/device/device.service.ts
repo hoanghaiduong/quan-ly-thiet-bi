@@ -11,6 +11,7 @@ import { ImageTypes } from 'src/common/enum/file';
 import { Meta } from 'src/common/pagination/meta.dto';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Pagination } from 'src/common/pagination/pagination.dto';
+import { UpdateImageDTO } from './dto/update-image.dto';
 
 @Injectable()
 export class DeviceService {
@@ -95,7 +96,13 @@ export class DeviceService {
     this.deviceRepository.merge(device, updateDeviceDto);
     return await this.deviceRepository.save(device);
   }
+  async updateImage(id: string, dto: UpdateImageDTO): Promise<Device | any> {
+    const device = await this.findOne(id);
+    return {
+      device,
 
+    }
+  }
   async remove(id: string): Promise<Device> {
     const device = await this.findOne(id);
     if (!device) {

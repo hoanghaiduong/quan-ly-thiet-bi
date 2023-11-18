@@ -29,7 +29,7 @@ export class UserController {
   }
 
   @Get('gets')
-  @Roles(Role.CUSTOMER)
+  @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard)
   @Note('Lấy thông tin tất cả người dùng')
   async getAllUsers(@Query() pagination: Pagination) {

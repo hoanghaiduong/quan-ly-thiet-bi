@@ -8,6 +8,7 @@ import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Device } from './entities/device.entity';
 import { ApiFileFields } from 'src/common/decorator/file.decorator';
 import { ERelationDevices } from './Enum/query-relation.enum';
+import { UpdateImageDTO } from './dto/update-image.dto';
 @ApiTags("API Thiết bị")
 @Controller('device')
 export class DeviceController {
@@ -52,6 +53,27 @@ export class DeviceController {
     return await this.deviceService.update(id, updateDeviceDto);
   }
 
+  @Patch('update-image')
+  @ApiFileFields([
+    {
+      name: 'photo',
+      maxCount: 1,
+    },
+    {
+      name: 'images',
+      maxCount: 5
+    }
+  ])
+  async updateImage(@Query('id') id: string, @Body() dto: UpdateImageDTO, @UploadedFiles() files?: {
+    photo?: Express.Multer.File,
+    images?: Express.Multer.File[]
+  }): Promise<Device> {
+    return await this.deviceService.updateImage(id, {
+      ...dto,
+      photo: files?.photo?.[0],
+      images: files?.images
+    });
+  }
   @Delete('delete')
   async remove(@Query('id') id: string): Promise<Device> {
     return await this.deviceService.remove(id);
