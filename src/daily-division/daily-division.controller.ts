@@ -1,35 +1,62 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, UploadedFiles } from '@nestjs/common';
 import { DailyDivisionService } from './daily-division.service';
 import { CreateDailyDivisionDto } from './dto/create-daily-division.dto';
 import { UpdateDailyDivisionDto } from './dto/update-daily-division.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { DailyDivision } from './entities/daily-division.entity';
+import { PaginationModel } from 'src/common/pagination/pagination.model';
+import { Pagination } from 'src/common/pagination/pagination.dto';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { ApiFileFields } from 'src/common/decorator/file.decorator';
+import { Roles } from 'src/common/decorator/role.decorator';
+import { Role } from 'src/common/enum/auth';
+import { Response } from 'express';
 @ApiTags("API Phân công hằng ngày")
 @Controller('daily-division')
+@UseGuards(JwtAuthGuard)
 export class DailyDivisionController {
   constructor(private readonly dailyDivisionService: DailyDivisionService) { }
-
-  @Post()
-  create(@Body() createDailyDivisionDto: CreateDailyDivisionDto) {
-    return this.dailyDivisionService.create(createDailyDivisionDto);
+  @Post('create')
+  @Roles(Role.TECHNICAL, Role.ADMIN)
+  @ApiFileFields([
+    {
+      name: 'beforeImage',
+      maxCount: 5,
+    },
+    {
+      name: 'afterImage',
+      maxCount: 5
+    }
+  ])
+  @ApiResponse({ status: 201, description: 'The daily division has been successfully created.' })
+  async create(@Body() dto: CreateDailyDivisionDto, @UploadedFiles() files?: {
+    beforeImage: Express.Multer.File[],
+    afterImage: Express.Multer.File[]
+  }): Promise<DailyDivision> {
+    return await this.dailyDivisionService.create({
+      ...dto,
+      beforeImage: files?.beforeImage,
+      afterImage: files?.afterImage,
+    });
   }
 
   @Get()
-  findAll() {
-    return this.dailyDivisionService.findAll();
+  async findAll(@Query() pagination: Pagination): Promise<PaginationModel<DailyDivision>> {
+    return await this.dailyDivisionService.findAll(pagination);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.dailyDivisionService.findOne(+id);
+  @Get('get')
+  async findOne(@Query('id') id: string): Promise<DailyDivision> {
+    return await this.dailyDivisionService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDailyDivisionDto: UpdateDailyDivisionDto) {
-    return this.dailyDivisionService.update(+id, updateDailyDivisionDto);
+  @Patch('update')
+  async update(@Query('id') id: string, @Body() updateDailyDivisionDto: UpdateDailyDivisionDto): Promise<DailyDivision> {
+    return await this.dailyDivisionService.update(id, updateDailyDivisionDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.dailyDivisionService.remove(+id);
+  @Delete('delete')
+  async remove(@Query('id') id: string): Promise<DailyDivision | Response> {
+    return await this.dailyDivisionService.remove(id);
   }
 }

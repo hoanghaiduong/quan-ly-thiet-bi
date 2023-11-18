@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/swagger';
+import { OmitType, PartialType } from '@nestjs/swagger';
 import { CreateDailyDivisionDto } from './create-daily-division.dto';
 
-export class UpdateDailyDivisionDto extends PartialType(CreateDailyDivisionDto) {}
+export class UpdateDailyDivisionDto extends PartialType(OmitType(CreateDailyDivisionDto, ['afterImage', 'beforeImage'])) { }

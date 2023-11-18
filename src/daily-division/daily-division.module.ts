@@ -3,11 +3,16 @@ import { DailyDivisionService } from './daily-division.service';
 import { DailyDivisionController } from './daily-division.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DailyDivision } from './entities/daily-division.entity';
+import { WorkStatusModule } from 'src/work-status/work-status.module';
+import { PlanModule } from 'src/plan/plan.module';
+import { UserModule } from 'src/user/user.module';
+import { StorageService } from 'src/storage/storage.service';
+import { DeviceModule } from 'src/device/device.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([DailyDivision])],
+  imports: [TypeOrmModule.forFeature([DailyDivision]), WorkStatusModule, PlanModule, UserModule, DeviceModule],
   controllers: [DailyDivisionController],
-  providers: [DailyDivisionService],
+  providers: [DailyDivisionService, StorageService],
   exports: [DailyDivisionService]
 
 })

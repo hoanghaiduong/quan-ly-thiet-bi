@@ -14,10 +14,10 @@ export class DailyDivision extends DateTimeEntity {
     @Column({ nullable: true })
     workDay: Date;
 
-    @Column({ type: 'time', nullable: true })
+    @Column({ type: 'date', nullable: true })
     startTime: string;
 
-    @Column({ type: 'time', nullable: true })
+    @Column({ type: 'date', nullable: true })
     estimateFinishTime: string;
 
     @Column({ type: 'float', nullable: true })
@@ -35,17 +35,25 @@ export class DailyDivision extends DateTimeEntity {
     @Column({ nullable: true, length: 500 })
     jobDescription: string;
 
-    @Column({ nullable: true, length: 255 })
-    beforeImage: string;
+    @Column({
+        type: 'text',
+        array: true,
+        nullable: true
+    })
+    beforeImage: string[];
 
-    @Column({ nullable: true, length: 255 })
-    afterImage: string;
+    @Column({
+        type: 'text',
+        array: true,
+        nullable: true
+    })
+    afterImage: string[];
 
     @Column({ type: 'date', nullable: true })
     completedDate: Date;
 
     @Column({ nullable: true })
-    checkedBy: number;
+    checkedBy: string;
 
     @ManyToOne(() => Device, devices => devices.dailyVisions, { nullable: false })
     device: Device;
@@ -53,9 +61,9 @@ export class DailyDivision extends DateTimeEntity {
     @ManyToOne(() => Plan, plans => plans.dailyVisions, { nullable: false })
     plan: Plan;
 
-    @ManyToOne(() => User,users=>users.dailyVisions, { nullable: false })
+    @ManyToOne(() => User, users => users.dailyVisions, { nullable: false })
     user: User;
 
-    @ManyToOne(() => WorkStatus,workStatus=>workStatus.dailyVisions, { nullable: false })
+    @ManyToOne(() => WorkStatus, workStatus => workStatus.dailyVisions, { nullable: false })
     workStatus: WorkStatus;
 }
