@@ -72,7 +72,7 @@ export class UserController {
     enum: Role,
     name: 'role'
   })
-  async updateUserByAdmin(@Query() { id }: QueryIdDto, @Query('role') role: Role, @Body() dto: UpdateUserDto): Promise<User> {
+  async updateUserByAdmin(@Query() { id }: QueryIdDto, @Query('role') role: Role, @Body() dto: UpdateUserProfileDto): Promise<User> {
 
     return await this.userService.updateUser(id, {
       ...dto,

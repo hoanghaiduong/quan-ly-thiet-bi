@@ -2,13 +2,14 @@
 
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, ILike, LessThanOrEqual, MoreThanOrEqual, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreatePlanDto } from './dto/create-plan.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
 import { Plan } from './entities/plan.entity';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Pagination } from 'src/common/pagination/pagination.dto';
 import { Meta } from 'src/common/pagination/meta.dto';
+import { isISO8601 } from 'class-validator';
 
 @Injectable()
 export class PlanService {
@@ -27,18 +28,28 @@ export class PlanService {
 
   }
 
+
+
   async findAll(pagination: Pagination): Promise<PaginationModel<Plan>> {
-    const [entities, itemCount] = await this.planRepository.findAndCount({
-      take: pagination.take,
-      skip: pagination.skip,
-      where: {
-        isDelete: false,
-        contents: pagination.search ? ILike(`%${pagination.search}%`) : null
-      },
-      order: {
-        createdAt: pagination.order
-      }
-    });
+    const queryBuilder: SelectQueryBuilder<Plan> = this.planRepository.createQueryBuilder('plan');
+
+    queryBuilder.where([
+      { isDelete: false },
+      { contents: pagination.search ? ILike(`%${pagination.search}%`) : null, }
+    ]);
+    let checkDate = pagination.options;
+    if (checkDate) {
+      queryBuilder.andWhere(
+        '((:checkDate >= plan.beginDate AND :checkDate <= plan.endDate) OR (:checkDate >= plan.beginDate AND plan.endDate IS NULL))',
+        { checkDate },
+      );
+    }
+
+    const [entities, itemCount] = await queryBuilder
+      .orderBy({ 'plan.createdAt': pagination.order })
+      .skip(pagination.skip)
+      .take(pagination.take)
+      .getManyAndCount();
 
     const meta = new Meta({
       itemCount,
@@ -47,7 +58,6 @@ export class PlanService {
 
     return new PaginationModel<Plan>(entities, meta);
   }
-
   async findOne(id: string): Promise<Plan> {
     const plan = await this.planRepository.findOne({
       where: {

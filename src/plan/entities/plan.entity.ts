@@ -7,17 +7,17 @@ import { User } from 'src/user/entities/user.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Plan extends DateTimeEntity{
+export class Plan extends DateTimeEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column({ nullable: true })
     contents: string;
 
-    @Column({ nullable: true })
+    @Column({ nullable: false })
     beginDate: Date;
 
-    @Column({ nullable: true })
+    @Column({ nullable: false })
     endDate: Date;
 
     @Column({ default: false })

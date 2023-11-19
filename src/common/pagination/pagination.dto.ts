@@ -2,7 +2,7 @@ import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEnum, IsInt, IsOptional, Max, Min } from "class-validator";
 import { Expose, Transform } from "class-transformer";
 import { OrderBy } from "./order-by.enum";
-
+import { User } from "src/user/entities/user.entity";
 export class Pagination {
 	@ApiPropertyOptional({ enum: OrderBy, default: OrderBy.ASC })
 	@IsEnum(OrderBy)
@@ -38,8 +38,13 @@ export class Pagination {
 	@ApiPropertyOptional({})
 	search?: string;
 
+	
+	@ApiPropertyOptional({})
+	options?: string;
 	@Expose()
 	get skip(): number {
 		return (this.page - 1) * this.take;
 	}
 }
+
+

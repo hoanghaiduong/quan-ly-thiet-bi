@@ -28,19 +28,19 @@ export class UserService {
   async updateUser(id: string, dto: UpdateUserProfileDto): Promise<User | any> {
     try {
 
-      const user = await this.getUserById(id);
+      const user = await this.getUserByIdNoException(id);
       const merged = this.usersRepository.merge(user, {
         ...dto
       })
       await this.usersRepository.update(id, merged);
-      return await this.getUserById(id)
+      return await this.getUserByIdNoException(id);
     } catch (error) {
       throw new ApiException(ErrorMessages.BAD_REQUEST, `Update User failed with error: ${error}`);
     }
   }
   async grantAccessAdmin(id: string): Promise<User> {
     try {
-      const user = await this.getUserByIdNoException(id);
+      const user = await this.getUserById(id);
       user.role = Role.ADMIN;
       return await this.usersRepository.save(user)
     } catch (error) {

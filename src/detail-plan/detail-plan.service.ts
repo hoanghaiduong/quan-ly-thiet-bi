@@ -3,7 +3,7 @@ import { CreateDetailPlanDto } from './dto/create-detail-plan.dto';
 import { UpdateDetailPlanDto } from './dto/update-detail-plan.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DetailPlan } from './entities/detail-plan.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Pagination } from 'src/common/pagination/pagination.dto';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Meta } from 'src/common/pagination/meta.dto';
@@ -25,7 +25,6 @@ export class DetailPlanService {
 
   async create(dto: CreateDetailPlanDto, user: User): Promise<DetailPlan> {
     try {
-
       const [plan, device, workStatus] = await Promise.all([
         this.planService.findOne(dto.planId),
         this.deviceService.findOne(dto.deviceId),
@@ -51,8 +50,19 @@ export class DetailPlanService {
       order: {
         createdAt: pagination.order
       },
-      where: {
-      }
+      where: [
+        { typePlan: pagination.search ? ILike(`%${pagination.search}%`) : null },
+        {
+          specification: pagination.search ? ILike(`%${pagination.search}%`) : null,
+        },
+        {
+          unit: pagination.search ? ILike(`%${pagination.search}%`) : null,
+        },
+        {
+          notes: pagination.search ? ILike(`%${pagination.search}%`) : null,
+        }
+      ],
+      relations: ['workStatus', 'plan', 'device']
     });
     const meta = new Meta({ itemCount, pagination });
     return new PaginationModel<DetailPlan>(entities, meta);

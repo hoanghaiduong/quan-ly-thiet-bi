@@ -55,7 +55,7 @@ export class User extends DateTimeEntity {
     role: Role;
 
     @BeforeInsert()
-    @BeforeUpdate()
+    // @BeforeUpdate()
     async hashPassword() {
         // Check if the password field has been modified before hashing
         if (this.password) {

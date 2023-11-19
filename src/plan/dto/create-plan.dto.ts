@@ -9,11 +9,11 @@ export class CreatePlanDto {
     @IsString()
     contents?: string;
 
-    @ApiProperty({ example: '2023-11-20', description: 'The begin date of the plan.' })
+    @ApiProperty({ example: '2023-11-20 00:00:00', description: 'The begin date of the plan.' })
     @IsISO8601()
     beginDate?: Date;
 
-    @ApiProperty({ example: '2023-11-25', description: 'The end date of the plan.' })
+    @ApiProperty({ example: '2023-11-25 00:00:00', description: 'The end date of the plan.' })
     @IsISO8601()
     endDate?: Date;
 
