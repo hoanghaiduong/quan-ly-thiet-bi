@@ -32,6 +32,9 @@ export class DetailPlan extends DateTimeEntity {
     @Column({ default: 'PM' })//PM CM
     typePlan: string;
 
+    @Column({ default: 0, type: 'int' })
+    status: number;
+
     @ManyToOne(() => Device, devices => devices.detailPlans, { nullable: false })
     device: Device;
 

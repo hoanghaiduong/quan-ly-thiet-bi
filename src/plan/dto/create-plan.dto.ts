@@ -1,6 +1,6 @@
 // plan.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsBoolean, IsDate, IsISO8601 } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsDate, IsISO8601, Min, Max } from 'class-validator';
 import { User } from 'src/user/entities/user.entity';
 
 export class CreatePlanDto {
@@ -16,7 +16,13 @@ export class CreatePlanDto {
     @ApiProperty({ example: '2023-11-25 00:00:00', description: 'The end date of the plan.' })
     @IsISO8601()
     endDate?: Date;
-
+    @ApiProperty({
+        example: 0,
+        required:false
+    })
+    @Min(0)
+    @Max(4)
+    status?: number;
     @ApiProperty({ example: false, required: false, description: 'Whether the plan is deleted.' })
     @IsOptional()
     @IsBoolean()

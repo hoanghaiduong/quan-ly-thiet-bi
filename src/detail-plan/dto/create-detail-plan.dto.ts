@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString, IsOptional, IsDate, IsISO8601, IsUUID } from 'class-validator';
+import { IsNumber, IsString, IsOptional, IsDate, IsISO8601, IsUUID, Min, Max } from 'class-validator';
 
 export class CreateDetailPlanDto {
     @ApiProperty({ example: 1, description: 'The quantity of the detail plan.' })
@@ -34,6 +34,12 @@ export class CreateDetailPlanDto {
     @IsString()
     typePlan: string;
 
+    @ApiProperty({
+        example: 0,
+    })
+    @Min(0)
+    @Max(4)
+    status?: number;
     // You might want to include validation for the relationships (Device, Plan, WorkStatus)
 
     // Example for Device relationship

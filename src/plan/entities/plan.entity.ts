@@ -20,6 +20,8 @@ export class Plan extends DateTimeEntity {
     @Column({ nullable: false })
     endDate: Date;
 
+    @Column({ default: 0, type: 'int', nullable: true })
+    status: number;
     @Column({ default: false })
     isDelete: boolean;
 
