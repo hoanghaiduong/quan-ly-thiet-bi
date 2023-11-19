@@ -40,7 +40,7 @@ export class UserService {
   }
   async grantAccessAdmin(id: string): Promise<User> {
     try {
-      const user = await this.getUserById(id);
+      const user = await this.getUserByIdNoException(id);
       user.role = Role.ADMIN;
       return await this.usersRepository.save(user)
     } catch (error) {
@@ -78,6 +78,15 @@ export class UserService {
         id,
         isDeleted: false,
         isActived: true
+      }
+    })
+    if (!user) throw new ApiException(ErrorMessages.USER_NOT_FOUND);
+    return user;
+  }
+  async getUserByIdNoException(id: string): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id
       }
     })
     if (!user) throw new ApiException(ErrorMessages.USER_NOT_FOUND);
