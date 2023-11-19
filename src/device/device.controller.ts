@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UploadedFiles } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UploadedFiles, UploadedFile } from '@nestjs/common';
 import { DeviceService } from './device.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
-import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Pagination } from 'src/common/pagination/pagination.dto';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Device } from './entities/device.entity';
-import { ApiFileFields } from 'src/common/decorator/file.decorator';
+import { ApiFile, ApiFileFields } from 'src/common/decorator/file.decorator';
 import { ERelationDevices } from './Enum/query-relation.enum';
 import { UpdateImageDTO } from './dto/update-image.dto';
+import { FileTypes } from 'src/common/enum/file';
+import { EUpdateImageDevice } from './Enum/update-image.enum';
+import { UploadImageSingleDTO } from './dto/update-image-single.dto';
 @ApiTags("API Thiết bị")
 @Controller('device')
 export class DeviceController {
@@ -52,7 +55,15 @@ export class DeviceController {
   async update(@Query('id') id: string, @Body() updateDeviceDto: UpdateDeviceDto): Promise<Device> {
     return await this.deviceService.update(id, updateDeviceDto);
   }
-
+  @ApiFile('file', FileTypes.IMAGE)
+  @ApiQuery({
+    enum: EUpdateImageDevice,
+    name: 'type'
+  })
+  @Patch('update-single-image')
+  async updateSingleImage(@Query('id') id: string, @Body() dto: UploadImageSingleDTO, @UploadedFile() file: Express.Multer.File, @Query('type') type: string): Promise<Device> {
+    return await this.deviceService.updateSingleImage(id, dto.url, file, type);
+  }
   @Patch('update-image')
   @ApiFileFields([
     {

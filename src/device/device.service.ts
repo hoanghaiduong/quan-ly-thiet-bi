@@ -97,47 +97,134 @@ export class DeviceService {
     return await this.deviceRepository.save(device);
   }
 
+  // async updateImage(id: string, dto: UpdateImageDTO): Promise<Device | any> {
+  //   const device = await this.findOne(id);
+
+  //   // Delete old photo
+
+  //   if (dto.photo) {
+  //     if (device.photo !== null) {
+  //       await this.storgeService.deleteFile(device.photo);
+  //       device.photo = await this.storgeService.uploadFile(`${ImageTypes.CARD_DEVICE}/${device.deviceName}`, dto.photo);
+
+  //     }
+  //     else {
+  //       device.photo = await this.storgeService.uploadFile(`${ImageTypes.CARD_DEVICE}/${device.deviceName}`, dto.photo);
+
+  //     }
+  //   }
+
+  //   const arrTemp: string[] = [];
+  //   const arrTemp2: string[] = [];
+  //   const deletePromises: Promise<void>[] = [];
+
+  //   if (dto.urlImages && dto.urlImages[0] !== "") {
+  //     //nếu có truyền mảng url ảnh cũ thì tìm kiếm ảnh đó xoá đi và thay bằng ảnh mới nếu có truyền dto.images
+  //     if (dto.images) {
+  //       for (const oldImage of device.images) {
+  //         if (dto.urlImages.includes(oldImage)) {
+  //           arrTemp.push(oldImage);
+  //           deletePromises.push(this.storgeService.deleteFile(oldImage));
+  //         }
+  //       }
+  //       Logger.debug("Các ảnh sẽ xoá nếu có truyền mảng url images cũ và mảnh ảnh mới", arrTemp);
+  //       await Promise.all(deletePromises);
+  //       //sau khi xoá xong upload ảnh mới
+  //       const templ = await this.storgeService.uploadMultiFiles(`${ImageTypes.CARD_DEVICE}/${device.deviceName}/${ImageTypes.CARD_DEVICE_DETAIL}`, dto.images);
+  //       for (const temp of templ) {
+  //         device.images.push(temp);
+  //       }
+  //     }
+
+
+
+
+  //   }
+  //   else {
+
+  //     if (dto.images) {
+  //       for (const oldImage of device.images) {
+  //         deletePromises.push(this.storgeService.deleteFile(oldImage));
+  //       }
+  //       Logger.debug("Các ảnh sẽ xoá nếu chưa có truyền url images", deletePromises);
+  //       await Promise.all(deletePromises);
+  //       device.images = await this.storgeService.uploadMultiFiles(`${ImageTypes.CARD_DEVICE}/${device.deviceName}/${ImageTypes.CARD_DEVICE_DETAIL}`, dto.images);
+  //     }
+
+
+  //   }
+
+  //   // await Promise.all(deletePromises);
+  //   // Delete old images not included in the updated ones
+  //   // if (dto.urlImages) {//nếu có truyền ảnh muốn cập nhật
+  //   //   // Upload new images if provided
+  //   //   const imagesToDelete = device.images.filter(oldImage => !dto.urlImages.includes(oldImage));
+  //   //   Logger.debug("Các ảnh sẽ xoá", imagesToDelete);
+  //   //   const deletePromises = imagesToDelete.map(oldImage => this.storgeService.deleteFile(oldImage));
+  //   //   await Promise.all(deletePromises);
+  //   // }
+
+
+
+
+
+
+  //   // Save the updated device
+  //   return await this.deviceRepository.save(device);
+  // }
+  async updateSingleImage(id: string, url: string, newFile: Express.Multer.File, type: string): Promise<Device | any> {
+    try {
+      const device = await this.findOne(id);
+      if (url) {
+        await this.storgeService.deleteFile(url);
+      }
+      let savedImage: any;
+      if (type === "photo") {
+        savedImage = await this.storgeService.uploadFile(`${ImageTypes.CARD_DEVICE}/${device.deviceName}`, newFile);
+      }
+      else {
+        savedImage = await this.storgeService.uploadFile(`${ImageTypes.CARD_DEVICE}/${device.deviceName}/${ImageTypes.CARD_DEVICE_DETAIL}`, newFile);
+      }
+
+
+
+      return savedImage;
+    } catch (error) {
+      throw new BadRequestException(error.message)
+    }
+  }
   async updateImage(id: string, dto: UpdateImageDTO): Promise<Device | any> {
     const device = await this.findOne(id);
 
     // Delete old photo
-
     if (dto.photo) {
       if (device.photo !== null) {
         await this.storgeService.deleteFile(device.photo);
-        device.photo = await this.storgeService.uploadFile(`${ImageTypes.CARD_DEVICE}/${device.deviceName}`, dto.photo);
-
       }
-      else {
-        device.photo = await this.storgeService.uploadFile(`${ImageTypes.CARD_DEVICE}/${device.deviceName}`, dto.photo);
-
-      }
+      device.photo = await this.storgeService.uploadFile(`${ImageTypes.CARD_DEVICE}/${device.deviceName}`, dto.photo);
     }
 
+    // Delete old images based on provided URL images
+    if (dto.urlImages && dto.urlImages.length > 0) {
+      const imagesToDelete = device.images.filter(oldImage => dto.urlImages.includes(oldImage));
+      const deletePromises: Promise<void>[] = imagesToDelete.map(oldImage => this.storgeService.deleteFile(oldImage));
+      await Promise.all(deletePromises);
 
-    // Delete old images not included in the updated ones
-    if (dto.urlImages !== null) {//nếu có truyền ảnh muốn cập nhật
-      // Upload new images if provided
-      if (device.images !== null) {
-        const imagesToDelete = device.images.filter(oldImage => !dto.urlImages.includes(oldImage));
-        Logger.debug(imagesToDelete);
-        const deletePromises = imagesToDelete.map(oldImage => this.storgeService.deleteFile(oldImage));
-        await Promise.all(deletePromises);
-      }
+      // Update device images excluding the ones to be deleted
+      device.images = device.images.filter(oldImage => !imagesToDelete.includes(oldImage));
     }
 
-    if (dto.images) {
-      device.images = await this.storgeService.uploadMultiFiles(`${ImageTypes.CARD_DEVICE}/${device.deviceName}/${ImageTypes.CARD_DEVICE_DETAIL}`, dto.images);
+    // Upload new images
+    if (dto.images && dto.images.length > 0) {
+      const newImages = await this.storgeService.uploadMultiFiles(`${ImageTypes.CARD_DEVICE}/${device.deviceName}/${ImageTypes.CARD_DEVICE_DETAIL}`, dto.images);
+
+      // Update device images with the new ones
+      device.images = [...device.images, ...newImages];
     }
-
-
-
-
 
     // Save the updated device
     return await this.deviceRepository.save(device);
   }
-
   async remove(id: string): Promise<Device> {
     const device = await this.findOne(id);
     if (!device) {
