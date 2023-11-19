@@ -40,7 +40,8 @@ export class FactoryService {
         { address: pagination.search ? ILike(`%${pagination.search}%`) : null },
         { phone: pagination.search ? ILike(`%${pagination.search}%`) : null },
         { phone2: pagination.search ? ILike(`%${pagination.search}%`) : null }
-      ]
+      ],
+      relations:['user']
     })
     const meta = new Meta({ pagination, itemCount })
     return new PaginationModel<Factory>(entities, meta);

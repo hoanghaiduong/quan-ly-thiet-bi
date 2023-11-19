@@ -63,9 +63,9 @@ export class DailyDivisionService {
       order: {
         createdAt: pagination.order
       },
-      where: {
-
-      }
+      relations: [
+        'workStatus', 'device', 'plan', 'user'
+      ]
     });
     const meta = new Meta({ itemCount, pagination });
     return new PaginationModel<DailyDivision>(entities, meta);

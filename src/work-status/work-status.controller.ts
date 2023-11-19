@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { WorkStatusService } from './work-status.service';
 import { CreateWorkStatusDto } from './dto/create-work-status.dto';
 import { UpdateWorkStatusDto } from './dto/update-work-status.dto';
@@ -11,6 +11,10 @@ import { ApiTags } from '@nestjs/swagger';
 export class WorkStatusController extends BaseController<WorkStatus>{
   constructor(private readonly workStatusService: WorkStatusService) {
     super(workStatusService);
+  }
+  @Get('get-dailyvision-work')
+  async getDailyVision(@Query('work_status_id') work_status_id: string) {
+    return await this.workStatusService.getDailyVisions(work_status_id);
   }
 
 }
