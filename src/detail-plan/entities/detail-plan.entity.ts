@@ -7,7 +7,7 @@ import { WorkStatus } from 'src/work-status/entities/work-status.entity';
 import { Column, Entity, PrimaryColumn, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class DetailPlan extends DateTimeEntity{
+export class DetailPlan extends DateTimeEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
@@ -29,7 +29,7 @@ export class DetailPlan extends DateTimeEntity{
     @Column({ default: 0 })
     percents: number;
 
-    @Column({ default: 'PM' })//PM SM
+    @Column({ default: 'PM' })//PM CM
     typePlan: string;
 
     @ManyToOne(() => Device, devices => devices.detailPlans, { nullable: false })

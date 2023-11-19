@@ -10,6 +10,8 @@ import { Meta } from 'src/common/pagination/meta.dto';
 import { WorkStatusService } from 'src/work-status/work-status.service';
 import { PlanService } from 'src/plan/plan.service';
 import { DeviceService } from 'src/device/device.service';
+import { User } from 'src/user/entities/user.entity';
+import { Role } from 'src/common/enum/auth';
 
 @Injectable()
 export class DetailPlanService {
@@ -21,8 +23,9 @@ export class DetailPlanService {
     private readonly deviceService: DeviceService,
   ) { }
 
-  async create(dto: CreateDetailPlanDto): Promise<DetailPlan> {
+  async create(dto: CreateDetailPlanDto, user: User): Promise<DetailPlan> {
     try {
+
       const [plan, device, workStatus] = await Promise.all([
         this.planService.findOne(dto.planId),
         this.deviceService.findOne(dto.deviceId),
@@ -32,7 +35,8 @@ export class DetailPlanService {
         ...dto,
         plan,
         device,
-        workStatus
+        workStatus,
+        typePlan: user.role === Role.ADMIN ? "PM" : "CM"
       });
       return await this.detailPlanRepository.save(detailPlan);
     } catch (error) {

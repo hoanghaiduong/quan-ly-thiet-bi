@@ -30,7 +30,7 @@ export class CreateDetailPlanDto {
     @IsNumber()
     percents: number;
 
-    @ApiProperty({ example: 'PM', description: 'The type of plan (PM or SM).' })
+    @ApiProperty({ example: 'PM', description: 'The type of plan (PM or CM).' })
     @IsString()
     typePlan: string;
 
