@@ -3,7 +3,7 @@ import { CreateFactoryDto } from './dto/create-factory.dto';
 import { UpdateFactoryDto } from './dto/update-factory.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Factory } from './entities/factory.entity';
-import { ILike, Repository } from 'typeorm';
+import { ILike, Repository, SelectQueryBuilder } from 'typeorm';
 import { Pagination } from 'src/common/pagination/pagination.dto';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Meta } from 'src/common/pagination/meta.dto';
@@ -27,23 +27,33 @@ export class FactoryService {
   }
 
   async findAll(pagination: Pagination): Promise<PaginationModel<Factory>> {
-    const [entities, itemCount] = await this.factoryRepository.findAndCount({
-      take: pagination.take,
-      skip: pagination.skip,
-      order: {
-        facName: pagination.order
-      },
-      where: [
-        { isDelete: false, },
-        { facName: pagination.search ? ILike(`%${pagination.search}%`) : null },
-        { alias: pagination.search ? ILike(`%${pagination.search}%`) : null },
-        { address: pagination.search ? ILike(`%${pagination.search}%`) : null },
-        { phone: pagination.search ? ILike(`%${pagination.search}%`) : null },
-        { phone2: pagination.search ? ILike(`%${pagination.search}%`) : null }
-      ],
-      relations:['user']
-    })
-    const meta = new Meta({ pagination, itemCount })
+    const queryBuilder: SelectQueryBuilder<Factory> = this.factoryRepository.createQueryBuilder('factory');
+
+    queryBuilder
+      .take(pagination.take)
+      .skip(pagination.skip)
+      .orderBy('factory.facName', pagination.order)
+      .leftJoin('factory.user', 'user');
+
+    const whereConditions: { [key: string]: any } = {
+      isDelete: false,
+    };
+
+    if (pagination.search) {
+      Object.assign(whereConditions, {
+        facName: ILike(`%${pagination.search}%`),
+        alias: ILike(`%${pagination.search}%`),
+        address: ILike(`%${pagination.search}%`),
+        phone: ILike(`%${pagination.search}%`),
+        phone2: ILike(`%${pagination.search}%`),
+      });
+    }
+
+    queryBuilder.where(whereConditions);
+
+    const [entities, itemCount] = await queryBuilder.getManyAndCount();
+
+    const meta = new Meta({ pagination, itemCount });
     return new PaginationModel<Factory>(entities, meta);
   }
 

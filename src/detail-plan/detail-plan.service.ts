@@ -3,7 +3,7 @@ import { CreateDetailPlanDto } from './dto/create-detail-plan.dto';
 import { UpdateDetailPlanDto } from './dto/update-detail-plan.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DetailPlan } from './entities/detail-plan.entity';
-import { ILike, Repository } from 'typeorm';
+import { ILike, Repository, SelectQueryBuilder } from 'typeorm';
 import { Pagination } from 'src/common/pagination/pagination.dto';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Meta } from 'src/common/pagination/meta.dto';
@@ -43,27 +43,25 @@ export class DetailPlanService {
     }
   }
 
+
   async findAll(pagination: Pagination): Promise<PaginationModel<DetailPlan>> {
-    const [entities, itemCount] = await this.detailPlanRepository.findAndCount({
-      take: pagination.take,
-      skip: pagination.skip,
-      order: {
-        createdAt: pagination.order
-      },
-      where: [
-        { typePlan: pagination.search ? ILike(`%${pagination.search}%`) : null },
-        {
-          specification: pagination.search ? ILike(`%${pagination.search}%`) : null,
-        },
-        {
-          unit: pagination.search ? ILike(`%${pagination.search}%`) : null,
-        },
-        {
-          notes: pagination.search ? ILike(`%${pagination.search}%`) : null,
-        }
-      ],
-      relations: ['workStatus', 'plan', 'device']
-    });
+    const queryBuilder: SelectQueryBuilder<DetailPlan> = this.detailPlanRepository.createQueryBuilder('detailPlan');
+
+    queryBuilder
+      .take(pagination.take)
+      .skip(pagination.skip)
+      .orderBy('detailPlan.createdAt', pagination.order)
+      .leftJoin('detailPlan.workStatus', 'workStatus')
+      .leftJoin('detailPlan.plan', 'plan')
+      .leftJoin('detailPlan.device', 'device');
+
+    if (pagination.search) {
+      queryBuilder
+        .andWhere('(detailPlan.typePlan ILIKE :search OR detailPlan.specification ILIKE :search OR detailPlan.unit ILIKE :search OR detailPlan.notes ILIKE :search)', { search: `%${pagination.search}%` });
+    }
+
+    const [entities, itemCount] = await queryBuilder.getManyAndCount();
+
     const meta = new Meta({ itemCount, pagination });
     return new PaginationModel<DetailPlan>(entities, meta);
   }
