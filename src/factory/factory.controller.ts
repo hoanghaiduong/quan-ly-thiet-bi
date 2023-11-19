@@ -43,7 +43,6 @@ export class FactoryController {
   async findOne(@Query('id') id: string): Promise<Factory> {
     return await this.factoryService.findOne(id);
   }
-
   @ApiOperation({ summary: 'Update a factory by ID' })
   @ApiResponse({ status: 200, description: 'The factory has been successfully updated.' })
   @ApiResponse({ status: 404, description: 'Factory not found.' })

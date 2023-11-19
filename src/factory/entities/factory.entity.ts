@@ -25,7 +25,6 @@ export class Factory {
     @Column({ default: false })
     isDelete: boolean;
 
-    @ManyToOne(() => User, users => users.factories)
-    @JoinColumn({ name: 'id' })
+    @ManyToOne(() => User, users => users.factories, { nullable: false })
     user: User;
 }
