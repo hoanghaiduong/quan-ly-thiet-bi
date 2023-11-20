@@ -16,10 +16,10 @@ export class CreateDetailPlanDto {
     @IsString()
     specification?: string;
 
-    @ApiProperty({ example: '2023-11-17', description: 'The expected date of the detail plan.' })
 
-    @IsISO8601()
-    expectedDate?: Date;
+
+    @ApiProperty({ example: new Date(2023, 11, 20).toLocaleDateString(), description: 'The expectedDate of the plan.' })
+    expectedDate?: string;
 
     @ApiProperty({ example: 'Notes', description: 'Additional notes for the detail plan.' })
 

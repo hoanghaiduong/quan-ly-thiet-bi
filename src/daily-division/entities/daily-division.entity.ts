@@ -12,7 +12,7 @@ export class DailyDivision extends DateTimeEntity {
     id: string;
 
     @Column({ type: 'date', nullable: true })
-    workDay: Date;
+    workDay: string;
 
     @Column({ type: 'time', nullable: true })
     startTime: string;
@@ -49,7 +49,7 @@ export class DailyDivision extends DateTimeEntity {
     afterImage: string[];
 
     @Column({ type: 'date', nullable: true })
-    completedDate: Date;
+    completedDate: string;
 
     @Column({ nullable: true })
     checkedBy: string;

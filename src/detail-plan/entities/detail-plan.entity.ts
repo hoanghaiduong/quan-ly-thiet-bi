@@ -20,8 +20,8 @@ export class DetailPlan extends DateTimeEntity {
     @Column({ nullable: true })
     specification: string;
 
-    @Column({ nullable: true })
-    expectedDate: Date;
+    @Column({ nullable: true, type: 'date' })
+    expectedDate: string;
 
     @Column({ nullable: true })
     notes: string;

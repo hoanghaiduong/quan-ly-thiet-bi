@@ -2,15 +2,16 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsString, IsNumber, IsOptional, IsISO8601, IsUUID } from 'class-validator';
 
 export class CreateDailyDivisionDto {
-    @ApiProperty({ example: '2023-11-17 00:00:00', description: 'Work day for the daily division.' })
-    @IsISO8601()
-    workDay?: Date;
+    @ApiProperty({
+        example: new Date(2023, 11, 20).toLocaleDateString(), description: ''
+    })
+    workDay?: string;
 
-    @ApiProperty({ example: '2023-11-17 00:00:00', description: 'Start time for the daily division.' })
+    @ApiProperty({ example: new Date().toLocaleTimeString(), description: 'Start time for the daily division.' })
     @IsString()
     startTime?: string;
 
-    @ApiProperty({ example: '2023-11-17 00:00:00', description: 'Estimated finish time for the daily division.' })
+    @ApiProperty({ example: new Date().toLocaleTimeString(), description: 'Estimated finish time for the daily division.' })
     @IsString()
     estimateFinishTime?: string;
 
@@ -48,9 +49,8 @@ export class CreateDailyDivisionDto {
     })
     afterImage?: Express.Multer.File[];
 
-    @ApiProperty({ example: '2023-11-18', description: 'Date when the division is completed.' })
-    @IsISO8601()
-    completedDate?: Date;
+    @ApiProperty({ example: new Date(2023, 11, 20).toLocaleDateString(), description: '' })
+    completedDate?: string;
 
     @ApiProperty({ example: 'example-user-id', description: 'User ID who checked the daily division.' })
     @IsUUID()
