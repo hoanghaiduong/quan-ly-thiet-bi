@@ -123,10 +123,15 @@ export class PlanService {
     else if (month !== undefined && year !== undefined) {
       const firstDayOfMonth = new Date(year, month - 1, 1).toLocaleDateString();
       const lastDayOfMonth = new Date(year, month, 0).toLocaleDateString();
+      //tìm trong tháng
       queryBuilder.andWhere('plan.beginDate >= :firstDayOfMonth AND plan.endDate <= :lastDayOfMonth', {
         firstDayOfMonth,
         lastDayOfMonth,
       });
+      //tìm cả ngoài tháng
+      // queryBuilder.andWhere('(DATE_TRUNC(\'month\', plan.beginDate) = :firstDayOfMonth OR DATE_TRUNC(\'month\', plan.endDate) = :firstDayOfMonth)', {
+      //   firstDayOfMonth,
+      // });
     } else if (year !== undefined) {
       const firstDayOfYear = new Date(year, 0, 1).toLocaleDateString();
       const lastDayOfYear = new Date(year, 11, 31, 23, 59, 59).toLocaleDateString();
