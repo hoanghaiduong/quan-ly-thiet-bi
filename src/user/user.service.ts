@@ -47,11 +47,16 @@ export class UserService {
     try {
 
       const user = await this.getUserByIdNoException(id);
-      const merged = this.usersRepository.merge(user, {
-        ...dto,
-        // password: '123456'
+      // const merged = this.usersRepository.merge(user, {
+      //   ...dto,
+      //   // password: '123456'
+      // })
+      // await this.usersRepository.update(id, merged);
+      // return await this.getUserByIdNoException(id);
+      await this.usersRepository.save({
+        ...user,
+        ...dto
       })
-      await this.usersRepository.update(id, merged);
       return await this.getUserByIdNoException(id);
     } catch (error) {
       throw new ApiException(ErrorMessages.BAD_REQUEST, `Update User failed with error: ${error}`);
