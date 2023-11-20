@@ -36,6 +36,8 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
                     synchronize: true,
                     logging: true,
                     autoLoadEntities: true,
+                    dateStrings: ['DATE', 'DATETIME'],
+                    timezone: 'Asia/Ho_Chi_Minh', // Đặt múi giờ Việt Nam (Hồ Chí Minh)
                 }
             },
             async dataSourceFactory(options) {

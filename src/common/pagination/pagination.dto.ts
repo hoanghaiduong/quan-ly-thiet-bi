@@ -38,9 +38,9 @@ export class Pagination {
 	@ApiPropertyOptional({})
 	search?: string;
 
-	
-	@ApiPropertyOptional({})
-	options?: string;
+
+	// @ApiPropertyOptional({})
+	// options?: string;
 	@Expose()
 	get skip(): number {
 		return (this.page - 1) * this.take;

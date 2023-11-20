@@ -14,11 +14,11 @@ export class Plan extends DateTimeEntity {
     @Column({ nullable: true })
     contents: string;
 
-    @Column({ nullable: false })
-    beginDate: Date;
+    @Column({ nullable: false, type: 'date' })
+    beginDate: string;
 
-    @Column({ nullable: false })
-    endDate: Date;
+    @Column({ nullable: false, type: 'date' })
+    endDate: string;
 
     @Column({ default: 0, type: 'int', nullable: true })
     status: number;

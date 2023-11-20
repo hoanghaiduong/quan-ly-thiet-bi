@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } f
 import { PlanService } from './plan.service';
 import { CreatePlanDto } from './dto/create-plan.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Plan } from './entities/plan.entity';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Pagination } from 'src/common/pagination/pagination.dto';
@@ -10,6 +10,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { AuthUser } from 'src/common/decorator/user.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { CLonePlanDTO } from './dto/clone-plan-query.dto';
+import { QueryDateDTO } from 'src/common/dto/query-date.dto';
 
 @ApiTags("API Kế hoạch")
 @Controller('plan')
@@ -27,9 +28,26 @@ export class PlanController {
   async clonePlan(@Query() dto: CLonePlanDTO): Promise<Plan[]> {
     return await this.planService.clonePlan(dto);
   }
+  @Post('clone-plan-monthly')
+  async clonePlanByMonth(@Query('month') month: number, @Query('year') year: number): Promise<Plan[]> {
+    return await this.planService.clonePlanByMonth(month, year);
+  }
   @Get()
-  async findAll(@Query() pagination: Pagination): Promise<PaginationModel<Plan>> {
-    return await this.planService.findAll(pagination);
+  @ApiQuery({
+    name: 'day',
+    required: false
+  })
+  @ApiQuery({
+    name: 'month',
+    required: false
+  })
+  @ApiQuery({
+    name: 'year',
+    required: false
+  })
+
+  async findAll(@Query() pagination: Pagination, @Query() date: QueryDateDTO): Promise<PaginationModel<Plan>> {
+    return await this.planService.findAll(pagination, date);
   }
 
   @Get('get')

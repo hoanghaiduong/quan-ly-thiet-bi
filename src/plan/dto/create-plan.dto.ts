@@ -9,13 +9,13 @@ export class CreatePlanDto {
     @IsString()
     contents?: string;
 
-    @ApiProperty({ example: '2023-11-20 00:00:00', description: 'The begin date of the plan.' })
-    @IsISO8601()
-    beginDate?: Date;
+    @ApiProperty({ example: new Date(2023, 11, 20).toLocaleDateString(), description: 'The begin date of the plan.' })
+    // @IsISO8601()
+    beginDate?: string;
 
-    @ApiProperty({ example: '2023-11-25 00:00:00', description: 'The end date of the plan.' })
-    @IsISO8601()
-    endDate?: Date;
+    @ApiProperty({ example: new Date(2023, 11, 25).toLocaleDateString(), description: 'The end date of the plan.' })
+    // @IsISO8601()
+    endDate?: string;
     @ApiProperty({
         example: 0,
         required: false
@@ -28,8 +28,8 @@ export class CreatePlanDto {
     @IsBoolean()
     isDelete?: boolean;
 
-    // @ApiProperty({ example: false, required: false, description: 'Status cop' })
-    // isCopy?: boolean;
+    @ApiProperty({ example: false, required: false, description: 'Status cop' })
+    isCopy?: boolean;
 
     user?: User;
 }
