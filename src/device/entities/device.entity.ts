@@ -1,6 +1,6 @@
 // device.entity.ts
 
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany, BeforeInsert } from 'typeorm';
 import { DeviceType } from 'src/device-types/entities/device-type.entity';
 import { Factory } from 'src/factory/entities/factory.entity';
 import { DetailPlan } from 'src/detail-plan/entities/detail-plan.entity';
@@ -52,4 +52,9 @@ export class Device {
 
     @OneToMany(() => DailyDivision, dailyVision => dailyVision.device, { nullable: true })
     dailyVisions: DailyDivision[];
+
+    @BeforeInsert()
+    generateQrCode() {
+        this.qrCode = this.id; // Gán giá trị của id vào qrCode
+    }
 }
