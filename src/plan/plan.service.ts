@@ -10,6 +10,7 @@ import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Pagination } from 'src/common/pagination/pagination.dto';
 import { Meta } from 'src/common/pagination/meta.dto';
 import { isISO8601 } from 'class-validator';
+import { CLonePlanDTO } from './dto/clone-plan-query.dto';
 
 @Injectable()
 export class PlanService {
@@ -17,6 +18,27 @@ export class PlanService {
     @InjectRepository(Plan)
     private readonly planRepository: Repository<Plan>,
   ) { }
+  async clonePlan(dto: CLonePlanDTO): Promise<Plan[]> {
+    const plan = await this.findOne(dto.planId);
+    const clonedPlans: Plan[] = [];
+    for (let i = 0; i < dto.quantity; i++) {
+      const creating = this.planRepository.create({
+        ...plan,
+        isCopy: true,
+        id: undefined,
+        beginDate: this.incrementDate(plan.beginDate, i * dto.daysToAdd),
+        endDate: this.incrementDate(plan.endDate, i * dto.daysToAdd),
+      });
+      const clonedPlan = await this.planRepository.save(creating);
+      clonedPlans.push(clonedPlan);
+    }
+    return clonedPlans;
+  }
+  private incrementDate(date: Date, daysToAdd: number): Date {
+    const newDate = new Date(date);
+    newDate.setDate(newDate.getDate() + daysToAdd);
+    return newDate;
+  }
 
   async create(createPlanDto: CreatePlanDto): Promise<Plan> {
     try {

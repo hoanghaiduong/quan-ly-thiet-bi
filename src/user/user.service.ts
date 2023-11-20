@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,10 +12,28 @@ import { Meta } from 'src/common/pagination/meta.dto';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { UpdateUserProfileDto } from './dto/update-profile-user.dto';
 import { ERelatedUser } from './type/type-query.enum';
-
+import * as bcrypt from 'bcrypt';
+import { ChangePasswordDTO } from './dto/change-password.dto';
 @Injectable()
 export class UserService {
+
   constructor(@InjectRepository(User) private usersRepository: Repository<User>) { }
+
+  async changePasswordByAdmin(id: string, dto: ChangePasswordDTO): Promise<User> {
+    //Logger.debug((await bcrypt.hash(dto.oldPassword,10)))
+    const user = await this.getUserById(id);
+    const check = await bcrypt.compare(dto.oldPassword, user.password);
+    if (!check) throw new BadRequestException("Invalid old password");
+    user.password = await bcrypt.hash(dto.newPassword, 10);
+    return await this.usersRepository.save(user);
+  }
+  async changePassword(currentUser: User, dto: ChangePasswordDTO): Promise<User> {
+    const user = await this.getUserById(currentUser.id);
+    const check = await bcrypt.compare(dto.oldPassword, user.password);
+    if (!check) throw new BadRequestException("Invalid old password");
+    user.password = await bcrypt.hash(dto.newPassword, 10);
+    return await this.usersRepository.save(user);
+  }
   async createUser(dto: CreateUserDto): Promise<User> {
     if (await this.existsUsername(dto.username)) {
       throw new ApiException(ErrorMessages.USER_ALREADY_EXIST);
@@ -30,7 +48,8 @@ export class UserService {
 
       const user = await this.getUserByIdNoException(id);
       const merged = this.usersRepository.merge(user, {
-        ...dto
+        ...dto,
+        // password: '123456'
       })
       await this.usersRepository.update(id, merged);
       return await this.getUserByIdNoException(id);

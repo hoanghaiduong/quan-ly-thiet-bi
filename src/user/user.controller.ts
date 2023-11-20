@@ -16,6 +16,7 @@ import { RolesGuard } from 'src/auth/guard/role.guard';
 import { ERelatedUser } from './type/type-query.enum';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { CreateAuthDto } from 'src/auth/dto/create-auth.dto';
+import { ChangePasswordDTO } from './dto/change-password.dto';
 @ApiTags("API USER")
 @Controller('user')
 export class UserController {
@@ -88,5 +89,15 @@ export class UserController {
   async getFactoriesByUser(@Query('id') id: string, @Query('relation') relation: string): Promise<User> {
     return await this.userService.getRelation(id, relation);
   }
-
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard)
+  @Put('change-password-by-admin')
+  async changePasswordByAdmin(@Query('id') id: string, @Body() dto: ChangePasswordDTO): Promise<User> {
+    return await this.userService.changePasswordByAdmin(id, dto);
+  }
+  @UseGuards(JwtAuthGuard)
+  @Put('change-password')
+  async changePassword(@Body() dto: ChangePasswordDTO, @AuthUser() user: User): Promise<User> {
+    return await this.userService.changePassword(user, dto);
+  }
 }

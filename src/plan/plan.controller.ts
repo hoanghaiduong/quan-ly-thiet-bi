@@ -9,6 +9,7 @@ import { Pagination } from 'src/common/pagination/pagination.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { AuthUser } from 'src/common/decorator/user.decorator';
 import { User } from 'src/user/entities/user.entity';
+import { CLonePlanDTO } from './dto/clone-plan-query.dto';
 
 @ApiTags("API Kế hoạch")
 @Controller('plan')
@@ -22,6 +23,10 @@ export class PlanController {
     return this.planService.create({ ...dto, user });
   }
 
+  @Post('clone-plan')
+  async clonePlan(@Query() dto: CLonePlanDTO): Promise<Plan[]> {
+    return await this.planService.clonePlan(dto);
+  }
   @Get()
   async findAll(@Query() pagination: Pagination): Promise<PaginationModel<Plan>> {
     return await this.planService.findAll(pagination);

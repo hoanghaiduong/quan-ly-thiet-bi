@@ -18,7 +18,7 @@ export class CreatePlanDto {
     endDate?: Date;
     @ApiProperty({
         example: 0,
-        required:false
+        required: false
     })
     @Min(0)
     @Max(4)
@@ -28,6 +28,8 @@ export class CreatePlanDto {
     @IsBoolean()
     isDelete?: boolean;
 
+    // @ApiProperty({ example: false, required: false, description: 'Status cop' })
+    // isCopy?: boolean;
 
     user?: User;
 }
