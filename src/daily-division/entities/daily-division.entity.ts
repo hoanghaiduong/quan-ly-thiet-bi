@@ -4,7 +4,7 @@ import { Device } from 'src/device/entities/device.entity';
 import { Plan } from 'src/plan/entities/plan.entity';
 import { User } from 'src/user/entities/user.entity';
 import { WorkStatus } from 'src/work-status/entities/work-status.entity';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class DailyDivision extends DateTimeEntity {
@@ -65,4 +65,21 @@ export class DailyDivision extends DateTimeEntity {
 
     @ManyToOne(() => WorkStatus, workStatus => workStatus.dailyVisions, { nullable: false })
     workStatus: WorkStatus;
+
+    @BeforeInsert()
+    @BeforeUpdate()
+    calculateTotalTime() {
+        if (this.startTime && this.estimateFinishTime) {
+            const startTime = new Date(`1970-01-01 ${this.startTime}`);
+            const finishTime = new Date(`1970-01-01 ${this.estimateFinishTime}`);
+            const timeDifference = finishTime.getTime() - startTime.getTime();
+
+            // Calculate total time in hours
+            this.totalTime = timeDifference / (1000 * 60 * 60);
+        } else {
+
+
+            this.totalTime = null; // or set it to any default value based on your requirement
+        }
+    }
 }

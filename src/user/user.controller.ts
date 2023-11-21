@@ -80,7 +80,7 @@ export class UserController {
       role
     });
   }
-
+  
   @Get('get-relation-by-user')
   @ApiQuery({
     name: 'relation',
