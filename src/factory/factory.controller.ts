@@ -4,7 +4,7 @@ import { CreateFactoryDto } from './dto/create-factory.dto';
 import { UpdateFactoryDto } from './dto/update-factory.dto';
 import { ApiBadRequestResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Note } from 'src/common/decorator/description.decorator';
-import { Response, response } from 'express';
+import { Response } from 'express';
 import { Factory } from './entities/factory.entity';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Pagination } from 'src/common/pagination/pagination.dto';
@@ -56,13 +56,13 @@ export class FactoryController {
   @ApiResponse({ status: 200, description: 'The factory has been successfully deleted.' })
   @ApiResponse({ status: 404, description: 'Factory not found.' })
   @Delete('delete')
-  async remove(@Query('id') id: string, @Res() res: Response): Promise<Response> {
+  async remove(@Query('id') id: string): Promise<Object> {
     const dto = new UpdateFactoryDto();
     dto.isDelete = true;
-    const updated = await this.factoryService.update(id, dto);
-    if (!updated) throw new BadRequestException(`Failed to update factory ${id}`);
-    return res.status(200).json({
-      message: 'Xoá xưởng thành công'
-    });
+    await this.factoryService.update(id, dto);
+    return {
+      status: 200,
+      messsage: "The factory delete has been successfully"
+    }
   }
 }

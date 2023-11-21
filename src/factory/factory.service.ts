@@ -73,14 +73,19 @@ export class FactoryService {
   }
 
   async update(id: string, factoryDto: UpdateFactoryDto): Promise<Factory> {
-    const existingFactory = await this.findOne(id);
+    try {
+      const existingFactory = await this.findOne(id);
 
-    if (!existingFactory) {
-      throw new NotFoundException('Factory not found');
+      if (!existingFactory) {
+        throw new NotFoundException('Factory not found');
+      }
+
+      this.factoryRepository.merge(existingFactory, factoryDto);
+      return await this.factoryRepository.save(existingFactory);
+
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
-
-    this.factoryRepository.merge(existingFactory, factoryDto);
-    return await this.factoryRepository.save(existingFactory);
   }
 
 
