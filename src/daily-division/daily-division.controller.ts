@@ -7,10 +7,11 @@ import { DailyDivision } from './entities/daily-division.entity';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Pagination } from 'src/common/pagination/pagination.dto';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { ApiFileFields } from 'src/common/decorator/file.decorator';
+import { ApiFileFields, ApiFiles } from 'src/common/decorator/file.decorator';
 import { Roles } from 'src/common/decorator/role.decorator';
 import { Role } from 'src/common/enum/auth';
 import { Response } from 'express';
+import { UpdateImageDailyDivisionDTO } from './dto/update-image.dto';
 @ApiTags("API Phân công hằng ngày")
 @Controller('daily-division')
 @UseGuards(JwtAuthGuard)
@@ -54,6 +55,16 @@ export class DailyDivisionController {
   async update(@Query('id') id: string, @Body() updateDailyDivisionDto: UpdateDailyDivisionDto): Promise<DailyDivision> {
     return await this.dailyDivisionService.update(id, updateDailyDivisionDto);
   }
+
+  @Patch('update-image')
+  @ApiFiles('images', 5)
+  async updateImage(@Query('id') id: string, @Body() dto: UpdateImageDailyDivisionDTO, @UploadedFiles() files?: Express.Multer.File[]): Promise<DailyDivision | any> {
+    return await this.dailyDivisionService.updateImage(id, {
+      ...dto,
+      images: files ?? null
+    });
+  }
+
 
   @Delete('delete')
   async remove(@Query('id') id: string): Promise<DailyDivision | Response> {

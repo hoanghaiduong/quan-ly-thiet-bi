@@ -38,6 +38,7 @@ export class CreateDailyDivisionDto {
         format: 'binary',
         isArray: true,
         description: 'Before images for the daily division.',
+        required: false
     })
     beforeImage?: Express.Multer.File[];
 
@@ -46,6 +47,7 @@ export class CreateDailyDivisionDto {
         format: 'binary',
         isArray: true,
         description: 'After images for the daily division.',
+        required: false
     })
     afterImage?: Express.Multer.File[];
 
