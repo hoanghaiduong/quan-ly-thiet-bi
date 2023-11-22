@@ -118,7 +118,8 @@ export class PlanService {
 
       const checkDate = new Date(year, month - 1, day).toLocaleDateString(); // assuming day, month, year are 1-indexed
       Logger.debug(checkDate)
-      queryBuilder.andWhere(':checkDate = plan.beginDate OR :checkDate = plan.endDate', { checkDate });
+      // queryBuilder.andWhere(':checkDate = plan.beginDate OR :checkDate = plan.endDate AND :checkDate >= plan.beginDate OR :checkDate <= plan.endDate', { checkDate });
+      queryBuilder.andWhere(':checkDate BETWEEN plan.beginDate AND plan.endDate', { checkDate });
     }
     else if (month !== undefined && year !== undefined) {
       const firstDayOfMonth = new Date(year, month - 1, 1).toLocaleDateString();

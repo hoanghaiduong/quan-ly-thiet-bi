@@ -22,11 +22,17 @@ export class DetailPlanController {
   @Roles(Role.CUSTOMER, Role.ADMIN)
   @ApiResponse({ status: HttpStatus.CREATED, description: 'The detail plan has been successfully created.' })
   async create(@Body() createDetailPlanDto: CreateDetailPlanDto, @AuthUser() user: User): Promise<DetailPlan> {
-    return await this.detailPlanService.create(createDetailPlanDto,user);
+    return await this.detailPlanService.create(createDetailPlanDto, user);
   }
 
   @Get()
   async findAll(@Query() pagination: Pagination): Promise<PaginationModel<DetailPlan>> {
+    return await this.detailPlanService.findAll(pagination);
+  }
+
+
+  @Get('get-by-relations')
+  async findOneWithRelation(@Query('id') id:string,@Query() pagination: Pagination): Promise<PaginationModel<DetailPlan>> {
     return await this.detailPlanService.findAll(pagination);
   }
 

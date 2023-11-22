@@ -12,7 +12,7 @@ import { PlanService } from 'src/plan/plan.service';
 import { DeviceService } from 'src/device/device.service';
 import { User } from 'src/user/entities/user.entity';
 import { Role } from 'src/common/enum/auth';
-
+type relationshipFind = "dailyDivision" | "plan" | "device"
 @Injectable()
 export class DetailPlanService {
   constructor(
@@ -67,14 +67,24 @@ export class DetailPlanService {
     const detailPlan = await this.detailPlanRepository.findOne({
       where: {
         id
-      }
+      },
+
     });
     if (!detailPlan) {
       throw new NotFoundException('Detail Plan not found');
     }
     return detailPlan;
   }
-
+  async findOneWithRelationShip(id: string, relations: relationshipFind): Promise<DetailPlan> {
+    const detailPlan = await this.detailPlanRepository.findOne({
+      where: {
+        id,
+      },
+      relations: [relations]
+    })
+    if (!detailPlan) throw new NotFoundException(`Detail Plan not found`)
+    return detailPlan
+  }
   async update(id: string, dto: UpdateDetailPlanDto): Promise<DetailPlan> {
     const [plan, device] = await Promise.all([
       this.planService.findOne(dto.planId),
