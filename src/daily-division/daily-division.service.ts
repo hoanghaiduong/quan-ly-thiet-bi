@@ -20,9 +20,10 @@ import { isArray } from 'util';
 import { arrayNotEmpty } from 'class-validator';
 import { Transactional, runOnTransactionRollback } from 'typeorm-transactional';
 import { DetailPlanService } from 'src/detail-plan/detail-plan.service';
+import { EFilterDaily } from './dto/query-filter.dto';
 
 type relationshipType =
-  'device' | 'plan' | 'user'
+  'device' | 'detailPlan' | 'user'
 @Injectable()
 export class DailyDivisionService {
 
@@ -72,7 +73,7 @@ export class DailyDivisionService {
         createdAt: pagination.order
       },
       relations: [
-        'device', 'plan', 'user'
+        'device', 'detailPlan', 'user'
       ]
     });
     const meta = new Meta({ itemCount, pagination });
@@ -101,7 +102,16 @@ export class DailyDivisionService {
     }
     return dailyDivision;
   }
-
+  async findOneRelationControllerCustom(id: string, relation: EFilterDaily): Promise<DailyDivision> {
+    let dailyDivision: DailyDivision = null;
+    if (relation === EFilterDaily.ALL) {
+      dailyDivision = await this.findOneRelationShip(id, ["detailPlan", "device", "user"])
+    }
+    else {
+      dailyDivision = await this.findOneRelationShip(id, [relation])
+    }
+    return dailyDivision;
+  }
   async update(id: string, dto: UpdateDailyDivisionDto): Promise<DailyDivision> {
     const dailyDivision = await this.findOne(id);
 

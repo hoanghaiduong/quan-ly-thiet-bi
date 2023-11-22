@@ -12,6 +12,7 @@ import { Roles } from 'src/common/decorator/role.decorator';
 import { Role } from 'src/common/enum/auth';
 import { Response } from 'express';
 import { UpdateImageDailyDivisionDTO } from './dto/update-image.dto';
+import { FilterDailyDivisionDTO } from './dto/query-filter.dto';
 @ApiTags("API Phân công hằng ngày")
 @Controller('daily-division')
 @UseGuards(JwtAuthGuard)
@@ -50,7 +51,10 @@ export class DailyDivisionController {
   async findOne(@Query('id') id: string): Promise<DailyDivision> {
     return await this.dailyDivisionService.findOne(id);
   }
-
+  @Get('get-one-relations')
+  async findOneWithRelation(@Query() { id, filter }: FilterDailyDivisionDTO): Promise<DailyDivision> {
+    return await this.dailyDivisionService.findOneRelationControllerCustom(id,filter);
+  }
   @Patch('update')
   async update(@Query('id') id: string, @Body() updateDailyDivisionDto: UpdateDailyDivisionDto): Promise<DailyDivision> {
     return await this.dailyDivisionService.update(id, updateDailyDivisionDto);

@@ -52,6 +52,7 @@ export class CreateDetailPlanDto {
     @IsUUID()
     planId: string;
 
+
     // Example for WorkStatus relationship
     // @ApiProperty({ description: 'WorkStatus related to the detail plan.', required: true })
     // @IsUUID()

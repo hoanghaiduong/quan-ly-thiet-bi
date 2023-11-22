@@ -12,6 +12,7 @@ import { PlanService } from 'src/plan/plan.service';
 import { DeviceService } from 'src/device/device.service';
 import { User } from 'src/user/entities/user.entity';
 import { Role } from 'src/common/enum/auth';
+import { ETypePlan } from './dto/query.dto';
 type relationshipFind = "dailyDivision" | "plan" | "device"
 @Injectable()
 export class DetailPlanService {
@@ -43,7 +44,7 @@ export class DetailPlanService {
     }
   }
 
-  async statisticPlan(type: "PM" | "CM"): Promise<{
+  async statisticPlan(type: ETypePlan): Promise<{
     typePM?: {
       plan: number;
       target: number;
@@ -59,23 +60,30 @@ export class DetailPlanService {
   }
     | any> {
     //lấy số lượng thuộc type
-    const detailsPlan = this.detailPlanRepository.createQueryBuilder('detail_plan')
-      .select('COUNT(detail_plan.id)', 'totalCount')//đếm số lượng và đưa vào totalCount
-      .addSelect('(COUNT(detail_plan.id) / (SELECT COUNT(*) FROM detail_plan)) * 100', 'percentage')
+    const queryBuilder = this.detailPlanRepository.createQueryBuilder('detail_plan');
+    //thống kê tổng kế hoạch
+    const totalCountQuery = await queryBuilder
+      .select('COUNT(detail_plan.id)', 'totalTask')
       .where('detail_plan.typePlan = :type', { type })
-      .getRawMany();
-    return detailsPlan
+      .getRawOne();
+    //Thống kê kế hoạch dã hoàn thành
+    const totalDone = await queryBuilder
+      .select('COUNT(detail_plan.id)', 'totalDone')
+      .where('detail_plan.typePlan = :type', { type })
+      .andWhere('detail_plan.status = 1')
+      .getRawOne();
 
-    // if (type === "PM") {
-    //   return {
-    //     typePM: { plan: 1, target: 1, done: 1, total: 1 }
-    //   }
-    // }
-    // else {
-    //   return {
-    //     typeCM: { found: 1, target: 1, done: 1, total: 1 }
-    //   }
-    // }
+
+    const percentageTask = (totalCountQuery?.totalTask / totalCountQuery.totalTask) * 100;
+    const percentageDone = (totalDone?.totalDone / totalDone.totalDone) * 100;
+
+    return {
+      totalCountQuery,
+      percentageTask,
+      percentageDone,
+      totalDone
+    }
+
 
   }
 

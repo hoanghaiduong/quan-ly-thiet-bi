@@ -7,6 +7,10 @@ export enum ERelationShipDetailPlan {
     plan = "plan",
     ALL = "ALL"
 }
+export enum ETypePlan {
+    PM = "PM",
+    CM = "CM",
+}
 export class QueryDetailPlanDTO {
     @ApiProperty({
         required: true

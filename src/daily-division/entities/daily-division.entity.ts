@@ -62,14 +62,16 @@ export class DailyDivision extends DateTimeEntity {
     // plan: Plan;
 
     @OneToOne(() => DetailPlan, (chiTietKeHoach) => chiTietKeHoach.dailyDivision, { nullable: false })
+    @JoinColumn()
     detailPlan: DetailPlan;
-    
+
     @ManyToOne(() => User, users => users.dailyVisions, { nullable: false })
     user: User;
 
     // @ManyToOne(() => WorkStatus, workStatus => workStatus.dailyVisions, { nullable: false })
     // workStatus: WorkStatus;
 
+ 
     @BeforeInsert()
     @BeforeUpdate()
     calculateTotalTime() {
@@ -86,4 +88,6 @@ export class DailyDivision extends DateTimeEntity {
             this.totalTime = null; // or set it to any default value based on your requirement
         }
     }
+
+   
 }
