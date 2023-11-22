@@ -1,10 +1,11 @@
 // detail-plan.entity.ts
 
 import { DateTimeEntity } from 'src/common/entities/DateTime.entity';
+import { DailyDivision } from 'src/daily-division/entities/daily-division.entity';
 import { Device } from 'src/device/entities/device.entity';
 import { Plan } from 'src/plan/entities/plan.entity';
 import { WorkStatus } from 'src/work-status/entities/work-status.entity';
-import { Column, Entity, PrimaryColumn, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn, ManyToOne, JoinColumn, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
 
 @Entity()
 export class DetailPlan extends DateTimeEntity {
@@ -41,6 +42,13 @@ export class DetailPlan extends DateTimeEntity {
     @ManyToOne(() => Plan, plans => plans.detailPlans, { nullable: false })
     plan: Plan;
 
-    @ManyToOne(() => WorkStatus)
-    workStatus: WorkStatus;
+
+    // @ManyToOne(() => WorkStatus)
+    // workStatus: WorkStatus;
+    @OneToOne(() => DailyDivision, (dailyDivision) => dailyDivision.detailPlan)
+    @JoinColumn()
+    dailyDivision: DailyDivision;
+
+
+
 }

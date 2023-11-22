@@ -18,23 +18,21 @@ export class DetailPlanService {
   constructor(
     @InjectRepository(DetailPlan)
     private readonly detailPlanRepository: Repository<DetailPlan>,
-    private readonly workStatusService: WorkStatusService,
     private readonly planService: PlanService,
     private readonly deviceService: DeviceService,
   ) { }
 
   async create(dto: CreateDetailPlanDto, user: User): Promise<DetailPlan> {
     try {
-      const [plan, device, workStatus] = await Promise.all([
+      const [plan, device] = await Promise.all([
         this.planService.findOne(dto.planId),
         this.deviceService.findOne(dto.deviceId),
-        this.workStatusService.findOne(dto.workStatusId)
+
       ]);
       const detailPlan = this.detailPlanRepository.create({
         ...dto,
         plan,
         device,
-        workStatus,
         typePlan: user.role === Role.ADMIN ? "PM" : "CM"
       });
       return await this.detailPlanRepository.save(detailPlan);
@@ -51,10 +49,9 @@ export class DetailPlanService {
       .take(pagination.take)
       .skip(pagination.skip)
       .orderBy('detailPlan.createdAt', pagination.order)
-      .leftJoin('detailPlan.workStatus', 'workStatus')
       .leftJoin('detailPlan.plan', 'plan')
-      .leftJoin('detailPlan.device', 'device');
-
+      .leftJoin('detailPlan.device', 'device')
+      .leftJoin('detailPlan.dailyDivision', 'daily_division');
     if (pagination.search) {
       queryBuilder
         .andWhere('(detailPlan.typePlan ILIKE :search OR detailPlan.specification ILIKE :search OR detailPlan.unit ILIKE :search OR detailPlan.notes ILIKE :search)', { search: `%${pagination.search}%` });
@@ -79,15 +76,15 @@ export class DetailPlanService {
   }
 
   async update(id: string, dto: UpdateDetailPlanDto): Promise<DetailPlan> {
-    const [plan, device, workStatus] = await Promise.all([
+    const [plan, device] = await Promise.all([
       this.planService.findOne(dto.planId),
       this.deviceService.findOne(dto.deviceId),
-      this.workStatusService.findOne(dto.workStatusId)
+
     ]);
     const detailPlan = await this.findOne(id); // Check if the detail plan exists
     detailPlan.plan = plan;
     detailPlan.device = device;
-    detailPlan.workStatus = workStatus;
+
     const merged = this.detailPlanRepository.merge(detailPlan, dto);
     return await this.detailPlanRepository.save(merged);
   }

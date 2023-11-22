@@ -8,6 +8,7 @@ import { Pagination } from 'src/common/pagination/pagination.dto';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Meta } from 'src/common/pagination/meta.dto';
 import { UserService } from 'src/user/user.service';
+import { EFactoryFilterType, FactoryFilterDTO } from './dto/factory-filter.dto';
 
 @Injectable()
 export class FactoryService {
@@ -26,30 +27,23 @@ export class FactoryService {
     }
   }
 
-  async findAll(pagination: Pagination): Promise<PaginationModel<Factory>> {
+  async findAll(pagination: Pagination, filter?: FactoryFilterDTO): Promise<PaginationModel<Factory>> {
     const queryBuilder: SelectQueryBuilder<Factory> = this.factoryRepository.createQueryBuilder('factory');
 
     queryBuilder
       .take(pagination.take)
       .skip(pagination.skip)
-      .orderBy('factory.facName', pagination.order)
+      .where('factory.isDelete = :isDelete', { isDelete: false })
       .leftJoin('factory.user', 'user');
 
-    const whereConditions: { [key: string]: any } = {
-      isDelete: false,
-    };
 
-    if (pagination.search) {
-      Object.assign(whereConditions, {
-        facName: ILike(`%${pagination.search}%`),
-        alias: ILike(`%${pagination.search}%`),
-        address: ILike(`%${pagination.search}%`),
-        phone: ILike(`%${pagination.search}%`),
-        phone2: ILike(`%${pagination.search}%`),
-      });
+    const { column } = filter;
+    if (pagination.search && column) {
+      queryBuilder.andWhere(`factory.${column} ILike :search`, { search: `%${pagination.search}%` })
     }
 
-    queryBuilder.where(whereConditions);
+
+    queryBuilder.orderBy('factory.facName', pagination.order)
 
     const [entities, itemCount] = await queryBuilder.getManyAndCount();
 

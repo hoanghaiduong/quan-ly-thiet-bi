@@ -63,15 +63,15 @@ export class CreateDailyDivisionDto {
     @IsUUID()
     deviceId: string;
 
-    @ApiProperty({ example: 'example-plan-id', description: 'Plan related to the daily division.' })
+    @ApiProperty({ example: 'example-detail-plan-id', description: 'Plan related to the daily division.' })
     @IsUUID()
-    planId: string;
+    detailPlanId: string;
 
     @ApiProperty({ example: 'example-user-id', description: 'User related to the daily division.' })
     @IsUUID()
     userId: string;
 
-    @ApiProperty({ example: 'example-work-status-id', description: 'WorkStatus related to the daily division.' })
-    @IsString()
-    workStatusId: string;
+    // @ApiProperty({ example: 'example-work-status-id', description: 'WorkStatus related to the daily division.' })
+    // @IsString()
+    // workStatusId: string;
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, Query, Logger } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -14,9 +14,9 @@ import { Pagination } from 'src/common/pagination/pagination.dto';
 import { UpdateUserProfileDto } from './dto/update-profile-user.dto';
 import { RolesGuard } from 'src/auth/guard/role.guard';
 import { ERelatedUser } from './type/type-query.enum';
-import { PaginationModel } from 'src/common/pagination/pagination.model';
-import { CreateAuthDto } from 'src/auth/dto/create-auth.dto';
+
 import { ChangePasswordDTO } from './dto/change-password.dto';
+import { FilterUserDTO } from './dto/query-filter.dto';
 @ApiTags("API USER")
 @Controller('user')
 export class UserController {
@@ -32,9 +32,11 @@ export class UserController {
   @Get('gets')
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard)
+
   @Note('Lấy thông tin tất cả người dùng')
-  async getAllUsers(@Query() pagination: Pagination) {
-    return await this.userService.getUsers(pagination);
+  async getAllUsers(@Query() pagination: Pagination, @Query() filter: FilterUserDTO) {
+
+    return await this.userService.getUsers(pagination, filter);
   }
 
   @Roles(Role.ADMIN)
@@ -80,7 +82,7 @@ export class UserController {
       role
     });
   }
-  
+
   @Get('get-relation-by-user')
   @ApiQuery({
     name: 'relation',

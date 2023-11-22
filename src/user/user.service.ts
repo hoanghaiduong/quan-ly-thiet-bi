@@ -14,6 +14,7 @@ import { UpdateUserProfileDto } from './dto/update-profile-user.dto';
 import { ERelatedUser } from './type/type-query.enum';
 import * as bcrypt from 'bcrypt';
 import { ChangePasswordDTO } from './dto/change-password.dto';
+import { FilterUserDTO } from './dto/query-filter.dto';
 @Injectable()
 export class UserService {
 
@@ -127,19 +128,27 @@ export class UserService {
     return await this.usersRepository.exist({ where: { username } })
   }
 
-  async getUsers(pagination: Pagination) {
+  async getUsers(pagination: Pagination, filter: FilterUserDTO) {
     const queryBuilder = this.usersRepository
       .createQueryBuilder("users")
-      .orderBy("users.createdAt", pagination.order)
       .where('users.isActived = :isActived', { isActived: true })
       .andWhere('users.isDeleted = :isDeleted', { isDeleted: false })
       .take(pagination.take)
-      .skip(pagination.skip)
+      .skip(pagination.skip);
+    const { column } = filter;
+    if (pagination.search && column) {
+      queryBuilder.andWhere(
+        `users.${column} ILIKE :search`,
+        { search: `%${pagination.search}%` }
+      );
+    }
+
+    queryBuilder.orderBy("users.createdAt", pagination.order); // Move orderBy outside of the if statement
 
     const [users, itemCount] = await queryBuilder.getManyAndCount();
 
     const meta = new Meta({ itemCount, pagination });
     return new PaginationModel(users, meta);
-
   }
+
 }

@@ -19,9 +19,10 @@ import { UpdateImageDailyDivisionDTO } from './dto/update-image.dto';
 import { isArray } from 'util';
 import { arrayNotEmpty } from 'class-validator';
 import { Transactional, runOnTransactionRollback } from 'typeorm-transactional';
+import { DetailPlanService } from 'src/detail-plan/detail-plan.service';
 
 type relationshipType =
-  'workStatus' | 'device' | 'plan' | 'user'
+  'device' | 'plan' | 'user'
 @Injectable()
 export class DailyDivisionService {
 
@@ -29,7 +30,7 @@ export class DailyDivisionService {
     @InjectRepository(DailyDivision)
     private readonly dailyDivisionRepository: Repository<DailyDivision>,
     private readonly deviceService: DeviceService,  // Inject DeviceService
-    private readonly planService: PlanService,  // Inject PlanService
+    private readonly detailPlanService: DetailPlanService,  // Inject PlanService
     private readonly userService: UserService,  // Inject UserService
     private readonly workStatusService: WorkStatusService,  // Inject WorkStatusService
     private readonly storageService: StorageService, // Inject StorageService
@@ -38,9 +39,9 @@ export class DailyDivisionService {
   async create(dto: CreateDailyDivisionDto): Promise<DailyDivision> {
     // Retrieve related entities
     const device = await this.deviceService.findOne(dto.deviceId);
-    const plan = await this.planService.findOne(dto.planId);
+    const detailPlan = await this.detailPlanService.findOne(dto.detailPlanId);
     const user = await this.userService.getUserById(dto.userId);
-    const workStatus = await this.workStatusService.findOne(dto.workStatusId);
+
     let afterImage: string[] = [];
     let beforeImage: string[] = [];
     if (dto.beforeImage) {
@@ -53,9 +54,8 @@ export class DailyDivisionService {
     const dailyDivision = this.dailyDivisionRepository.create({
       ...dto,
       device,
-      plan,
+      detailPlan,
       user,
-      workStatus,
       beforeImage,
       afterImage
     });
@@ -72,13 +72,12 @@ export class DailyDivisionService {
         createdAt: pagination.order
       },
       relations: [
-        'workStatus', 'device', 'plan', 'user'
+        'device', 'plan', 'user'
       ]
     });
     const meta = new Meta({ itemCount, pagination });
     return new PaginationModel<DailyDivision>(entities, meta);
   }
-
   async findOne(id: string): Promise<DailyDivision> {
     const dailyDivision = await this.dailyDivisionRepository.findOne({
       where: {
@@ -107,14 +106,13 @@ export class DailyDivisionService {
     const dailyDivision = await this.findOne(id);
 
     const device = await this.deviceService.findOne(dto.deviceId);
-    const plan = await this.planService.findOne(dto.planId);
+    const detailPlan = await this.detailPlanService.findOne(dto.detailPlanId);
     const user = await this.userService.getUserById(dto.userId);
-    const workStatus = await this.workStatusService.findOne(dto.workStatusId);
+
     await this.userService.getUserById(dto.checkedBy);
     dailyDivision.device = device;
-    dailyDivision.plan = plan;
+    dailyDivision.detailPlan = detailPlan;
     dailyDivision.user = user;
-    dailyDivision.workStatus = workStatus;
     const merged = this.dailyDivisionRepository.merge(dailyDivision, dto);
     return await this.dailyDivisionRepository.save(merged);
   }

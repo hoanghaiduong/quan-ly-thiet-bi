@@ -1,10 +1,11 @@
 
 import { DateTimeEntity } from 'src/common/entities/DateTime.entity';
+import { DetailPlan } from 'src/detail-plan/entities/detail-plan.entity';
 import { Device } from 'src/device/entities/device.entity';
 import { Plan } from 'src/plan/entities/plan.entity';
 import { User } from 'src/user/entities/user.entity';
 import { WorkStatus } from 'src/work-status/entities/work-status.entity';
-import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class DailyDivision extends DateTimeEntity {
@@ -57,14 +58,17 @@ export class DailyDivision extends DateTimeEntity {
     @ManyToOne(() => Device, devices => devices.dailyVisions, { nullable: false })
     device: Device;
 
-    @ManyToOne(() => Plan, plans => plans.dailyVisions, { nullable: false })
-    plan: Plan;
+    // @ManyToOne(() => Plan, plans => plans.dailyVisions, { nullable: false })
+    // plan: Plan;
 
+    @OneToOne(() => DetailPlan, (chiTietKeHoach) => chiTietKeHoach.dailyDivision, { nullable: false })
+    detailPlan: DetailPlan;
+    
     @ManyToOne(() => User, users => users.dailyVisions, { nullable: false })
     user: User;
 
-    @ManyToOne(() => WorkStatus, workStatus => workStatus.dailyVisions, { nullable: false })
-    workStatus: WorkStatus;
+    // @ManyToOne(() => WorkStatus, workStatus => workStatus.dailyVisions, { nullable: false })
+    // workStatus: WorkStatus;
 
     @BeforeInsert()
     @BeforeUpdate()

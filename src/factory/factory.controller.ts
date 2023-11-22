@@ -14,6 +14,7 @@ import { User } from 'src/user/entities/user.entity';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { Roles } from 'src/common/decorator/role.decorator';
 import { Role } from 'src/common/enum/auth';
+import { EFactoryFilterType, FactoryFilterDTO } from './dto/factory-filter.dto';
 @ApiTags("API Phân xưởng")
 @Controller('factory')
 @Roles(Role.ADMIN, Role.CUSTOMER)
@@ -32,8 +33,8 @@ export class FactoryController {
   @Note('Get all factories')
   @ApiResponse({ status: 200, description: 'Returns a list of all factories.' })
   @Get()
-  async findAll(@Query() pagination: Pagination): Promise<PaginationModel<Factory>> {
-    return await this.factoryService.findAll(pagination);
+  async findAll(@Query() pagination: Pagination, @Query() filter?: FactoryFilterDTO): Promise<PaginationModel<Factory>> {
+    return await this.factoryService.findAll(pagination, filter);
   }
 
   @ApiOperation({ summary: 'Get a factory by ID' })
