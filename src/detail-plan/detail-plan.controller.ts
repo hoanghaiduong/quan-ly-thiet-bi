@@ -13,6 +13,7 @@ import { AuthUser } from 'src/common/decorator/user.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { ERelationShipDetailPlan, QueryDetailPlanDTO } from './dto/query.dto';
 import { QueryStatisticsDetailPlanDTO } from './dto/statistic-query.dto';
+import { Note } from 'src/common/decorator/description.decorator';
 
 @ApiTags("API Chi tiết kế hoạch")
 @Controller('detail-plan')
@@ -33,8 +34,9 @@ export class DetailPlanController {
   }
 
   @Get('plant-statisctics')
-  async detailPlanStatistics(@Query() {type}: QueryStatisticsDetailPlanDTO): Promise<any> {
-    return await this.detailPlanService.statisticPlan(type);
+  @Note("API Thống kê chi tiết kế hoạch (bao gồm kế hoạch hoàn thành , chưa hoàn thành, đang làm,phần trăm hoàn thành của những thiết bị)")
+  async detailPlanStatistics(@Query() { type }: QueryStatisticsDetailPlanDTO): Promise<any> {
+    return await this.detailPlanService.statisticDetailPlan(type);
   }
 
   @Get('get-by-relations')

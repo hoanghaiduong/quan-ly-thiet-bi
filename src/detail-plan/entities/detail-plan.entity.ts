@@ -33,8 +33,8 @@ export class DetailPlan extends DateTimeEntity {
     @Column({ default: 'PM' })//PM CM
     typePlan: string;
 
-    @Column({ default: 0, type: 'int' })
-    status: number;
+    @Column({ default: 4, type: 'int' })
+    status: number;//0 là chưa hoàn thành , 1 là hoàn thành , 2 là đang làm , 3 là chưa làm
 
     @ManyToOne(() => Device, devices => devices.detailPlans, { nullable: false })
     device: Device;
@@ -49,5 +49,24 @@ export class DetailPlan extends DateTimeEntity {
 
     dailyDivision: DailyDivision;
 
-  
+    @BeforeUpdate()
+    async CheckStatusExpect(): Promise<void> {
+        const expectedDate = new Date(this.expectedDate);
+        const planBeginDate = new Date(this.plan.beginDate);
+        const planEndDate = new Date(this.plan.endDate);
+
+        if (expectedDate > planEndDate) {
+            this.status = 0;
+        } else if (expectedDate <= planEndDate && expectedDate >= planBeginDate) {
+            this.status = 2;
+        } else if (expectedDate < planBeginDate) {
+            this.status = 3;
+        } else {
+            const completedDate = new Date(this.dailyDivision.completedDate);
+            if (completedDate >= planBeginDate && completedDate <= planEndDate) {
+                this.status = 1;
+            }
+        }
+    }
+
 }

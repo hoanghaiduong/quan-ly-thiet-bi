@@ -44,46 +44,68 @@ export class DetailPlanService {
     }
   }
 
-  async statisticPlan(type: ETypePlan): Promise<{
-    typePM?: {
-      plan: number;
-      target: number;
-      done: number;
-      total: number;
-    },
-    typeCM?: {
-      found: number;
-      target: number;
-      done: number;
-      total: number;
-    }
-  }
-    | any> {
-    //lấy số lượng thuộc type
-    const queryBuilder = this.detailPlanRepository.createQueryBuilder('detail_plan');
-    //thống kê tổng kế hoạch
-    const totalCountQuery = await queryBuilder
-      .select('COUNT(detail_plan.id)', 'totalTask')
-      .where('detail_plan.typePlan = :type', { type })
-      .getRawOne();
-    //Thống kê kế hoạch dã hoàn thành
-    const totalDone = await queryBuilder
-      .select('COUNT(detail_plan.id)', 'totalDone')
-      .where('detail_plan.typePlan = :type', { type })
-      .andWhere('detail_plan.status = 1')
-      .getRawOne();
+  async statisticDetailPlan(typePlan: ETypePlan): Promise<any> {
+    const totalRecords = await this.detailPlanRepository.count({
+      where: {
+        typePlan
+      }
+    });//lấy tất cả bản ghi thuộc typePlan
 
 
-    const percentageTask = (totalCountQuery?.totalTask / totalCountQuery.totalTask) * 100;
-    const percentageDone = (totalDone?.totalDone / totalDone.totalDone) * 100;
-
+    // Completed PM or CM Statistics
+    const completedRecords = await this.detailPlanRepository.count({
+      where: {
+        typePlan,
+        status: 1
+      }
+    })
+    // Completed PM or CM Statistics
+    const pendingRecords = await this.detailPlanRepository.count({
+      where: {
+        typePlan,
+        status: 2
+      }
+    })
+    const unCompletedRecords = await this.detailPlanRepository.count({
+      where: {
+        typePlan,
+        status: 0
+      }
+    })
+    // Device Statistics
+    const deviceStatistics = await this.detailPlanRepository
+      .createQueryBuilder('detail_Plan')
+      .select('device.id', 'deviceId')
+      .addSelect('COUNT(detail_Plan.id)', 'recordCount')
+      .where('detail_Plan.typePlan = :typePlan', { typePlan })
+      .andWhere('detail_Plan.status = 1') // You can add additional conditions here if needed
+      .leftJoin('detail_Plan.device', 'device')
+      .groupBy('device.id')
+      .getRawMany();
+    const devicePercentage = deviceStatistics.map((deviceStat) => ({
+      deviceId: deviceStat.deviceId,
+      percentage: (deviceStat.recordCount / totalRecords) * 100,
+    }));
+    const completedPercentage = (completedRecords / totalRecords) * 100;
+    const pendingPercentage = (pendingRecords / totalRecords) * 100;
+    const unCompletedPercentage = (unCompletedRecords / totalRecords) * 100;
     return {
-      totalCountQuery,
-      percentageTask,
-      percentageDone,
-      totalDone
-    }
+      totalRecords,
 
+      completed: {
+        count: completedRecords,
+        percentage: completedPercentage,
+      },
+      pending: {
+        count: pendingRecords,
+        percentage: pendingPercentage
+      },
+      unCompleted: {
+        count: unCompletedRecords,
+        percentage: unCompletedPercentage
+      },
+      device: devicePercentage,
+    };
 
   }
 
