@@ -166,7 +166,7 @@ export class PlanService {
         isDelete: false,
         id,
       },
-      relations: ['detailPlans', 'dailyVisions', 'user']
+      relations: ['detailPlans', 'user']
     });
     if (!plan) {
       throw new NotFoundException('Plan not found');

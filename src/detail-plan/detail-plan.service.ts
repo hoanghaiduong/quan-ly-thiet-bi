@@ -15,6 +15,7 @@ import { Role } from 'src/common/enum/auth';
 type relationshipFind = "dailyDivision" | "plan" | "device"
 @Injectable()
 export class DetailPlanService {
+
   constructor(
     @InjectRepository(DetailPlan)
     private readonly detailPlanRepository: Repository<DetailPlan>,
@@ -38,9 +39,45 @@ export class DetailPlanService {
       return await this.detailPlanRepository.save(detailPlan);
     } catch (error) {
       throw new BadRequestException(error);
+
     }
   }
 
+  async statisticPlan(type: "PM" | "CM"): Promise<{
+    typePM?: {
+      plan: number;
+      target: number;
+      done: number;
+      total: number;
+    },
+    typeCM?: {
+      found: number;
+      target: number;
+      done: number;
+      total: number;
+    }
+  }
+    | any> {
+    //lấy số lượng thuộc type
+    const detailsPlan = this.detailPlanRepository.createQueryBuilder('detail_plan')
+      .select('COUNT(detail_plan.id)', 'totalCount')//đếm số lượng và đưa vào totalCount
+      .addSelect('(COUNT(detail_plan.id) / (SELECT COUNT(*) FROM detail_plan)) * 100', 'percentage')
+      .where('detail_plan.typePlan = :type', { type })
+      .getRawMany();
+    return detailsPlan
+
+    // if (type === "PM") {
+    //   return {
+    //     typePM: { plan: 1, target: 1, done: 1, total: 1 }
+    //   }
+    // }
+    // else {
+    //   return {
+    //     typeCM: { found: 1, target: 1, done: 1, total: 1 }
+    //   }
+    // }
+
+  }
 
   async findAll(pagination: Pagination): Promise<PaginationModel<DetailPlan>> {
     const queryBuilder: SelectQueryBuilder<DetailPlan> = this.detailPlanRepository.createQueryBuilder('detailPlan');
@@ -75,12 +112,12 @@ export class DetailPlanService {
     }
     return detailPlan;
   }
-  async findOneWithRelationShip(id: string, relations: relationshipFind): Promise<DetailPlan> {
+  async findOneWithRelationShip(id: string, relations?: relationshipFind[]): Promise<DetailPlan> {
     const detailPlan = await this.detailPlanRepository.findOne({
       where: {
         id,
       },
-      relations: [relations]
+      relations
     })
     if (!detailPlan) throw new NotFoundException(`Detail Plan not found`)
     return detailPlan

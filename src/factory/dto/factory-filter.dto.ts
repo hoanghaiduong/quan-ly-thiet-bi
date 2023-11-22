@@ -9,6 +9,7 @@ export enum EFactoryFilterType {
     phone2 = "phone2",
 }
 
+
 export class FactoryFilterDTO {
     @ApiPropertyOptional({
         enum: EFactoryFilterType,

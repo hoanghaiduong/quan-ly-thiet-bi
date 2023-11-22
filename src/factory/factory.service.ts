@@ -65,7 +65,21 @@ export class FactoryService {
 
     return factory;
   }
+  async findOneWithRelation(id: string): Promise<Factory> {
+    const factory = await this.factoryRepository.findOne({
+      where: {
+        id,
+        isDelete: false
+      },
+      relations: ["user"]
+    });
 
+    if (!factory) {
+      throw new NotFoundException('Factory not found');
+    }
+
+    return factory;
+  }
   async update(id: string, factoryDto: UpdateFactoryDto): Promise<Factory> {
     try {
       const existingFactory = await this.findOne(id);

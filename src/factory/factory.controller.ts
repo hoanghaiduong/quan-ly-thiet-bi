@@ -42,7 +42,7 @@ export class FactoryController {
   @ApiResponse({ status: 404, description: 'Factory not found.' })
   @Get('get')
   async findOne(@Query('id') id: string): Promise<Factory> {
-    return await this.factoryService.findOne(id);
+    return await this.factoryService.findOneWithRelation(id);
   }
   @ApiOperation({ summary: 'Update a factory by ID' })
   @ApiResponse({ status: 200, description: 'The factory has been successfully updated.' })

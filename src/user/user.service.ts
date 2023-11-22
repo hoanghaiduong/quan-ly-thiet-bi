@@ -17,6 +17,14 @@ import { ChangePasswordDTO } from './dto/change-password.dto';
 import { FilterUserDTO } from './dto/query-filter.dto';
 @Injectable()
 export class UserService {
+  //     throw new ApiException(ErrorMessages.USER_NOT_FOUND);
+  //   } else if (!user.isActived) {
+  //     throw new ForbiddenException("Account is locked")
+  //   }
+  //   else if (user.isDeleted) throw new BadRequestException("Account is Deleted")
+  //   return user;
+  // }
+
 
   constructor(@InjectRepository(User) private usersRepository: Repository<User>) { }
 
@@ -150,5 +158,7 @@ export class UserService {
     const meta = new Meta({ itemCount, pagination });
     return new PaginationModel(users, meta);
   }
-
+  async getUsersStatistics(): Promise<any> {
+  //  const users=
+  }
 }

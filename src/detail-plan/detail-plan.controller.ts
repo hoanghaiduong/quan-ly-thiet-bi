@@ -11,6 +11,7 @@ import { Roles } from 'src/common/decorator/role.decorator';
 import { Role } from 'src/common/enum/auth';
 import { AuthUser } from 'src/common/decorator/user.decorator';
 import { User } from 'src/user/entities/user.entity';
+import { ERelationShipDetailPlan, QueryDetailPlanDTO } from './dto/query.dto';
 
 @ApiTags("API Chi tiết kế hoạch")
 @Controller('detail-plan')
@@ -30,10 +31,21 @@ export class DetailPlanController {
     return await this.detailPlanService.findAll(pagination);
   }
 
+  @Get('plant-statisctics')
+  async detailPlanStatistics(@Query('typePlan') type: string): Promise<any> {
+    return await this.detailPlanService.statisticPlan(type === "PM" ? "PM" : "CM");
+  }
 
   @Get('get-by-relations')
-  async findOneWithRelation(@Query('id') id:string,@Query() pagination: Pagination): Promise<PaginationModel<DetailPlan>> {
-    return await this.detailPlanService.findAll(pagination);
+  async findOneWithRelation(@Query() { id, relation }: QueryDetailPlanDTO): Promise<DetailPlan> {
+    let task: any;
+    if (relation === ERelationShipDetailPlan.ALL) {
+      task = await this.detailPlanService.findOneWithRelationShip(id, ["dailyDivision", "device", "plan"]);
+    }
+    else {
+      task = await this.detailPlanService.findOneWithRelationShip(id, [relation]);
+    }
+    return task;
   }
 
   @Get('get')

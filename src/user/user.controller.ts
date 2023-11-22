@@ -102,4 +102,9 @@ export class UserController {
   async changePassword(@Body() dto: ChangePasswordDTO, @AuthUser() user: User): Promise<User> {
     return await this.userService.changePassword(user, dto);
   }
+
+  @Get('users-statistics')
+  async getUsersStatistics(): Promise<any> {
+    return await this.userService.getUsersStatistics();
+  }
 }

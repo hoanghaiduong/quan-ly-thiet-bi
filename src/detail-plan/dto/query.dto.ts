@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsUUID } from "class-validator";
 
-enum RelationShip {
+export enum ERelationShipDetailPlan {
     device = "device",
     dailyDivision = "dailyDivision",
     plan = "plan",
@@ -15,8 +15,8 @@ export class QueryDetailPlanDTO {
     id: string
 
     @ApiPropertyOptional({
-        enum: RelationShip,
-        default: RelationShip.ALL
+        enum: ERelationShipDetailPlan,
+        default: ERelationShipDetailPlan.ALL
     })
-    relation: RelationShip
+    relation: ERelationShipDetailPlan
 }

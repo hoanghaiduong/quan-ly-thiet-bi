@@ -48,7 +48,4 @@ export class DetailPlan extends DateTimeEntity {
     @OneToOne(() => DailyDivision, (dailyDivision) => dailyDivision.detailPlan)
     @JoinColumn()
     dailyDivision: DailyDivision;
-
-
-
 }
