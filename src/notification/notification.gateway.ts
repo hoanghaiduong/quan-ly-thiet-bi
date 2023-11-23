@@ -27,19 +27,20 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
     console.log('Client disconnected:', client.id);
   }
   //admin push 
-  @SubscribeMessage('send-to-users')
-  async sendNotificationToUser(@MessageBody() payload: CreateNotificationDto): Promise<void> {
+  @SubscribeMessage('send-to-user')
+  async sendNotificationToUser(@ConnectedSocket() client: Socket, @MessageBody() payload: CreateNotificationDto): Promise<void> {
     const data = await this.notificationService.sendNotificationToUser(payload);
     if (data) {
-      this.server.emit('notification', data);
+      this.server.emit('notification', data);//server gửi data về cho client 
     }
     else {
       this.server.emit('notification', "Error because user not found");
     }
+
   }
 
   @SubscribeMessage('notifications-received')
-  async getNotificationsByUser(@MessageBody() { userId }: CreateNotificationDto) {
+  async getNotificationsByUser(@ConnectedSocket() client: Socket, @MessageBody() { userId }: CreateNotificationDto) {
     const notifications = await this.notificationService.getNotificationsByUser(userId);
     this.server.emit('notifications', notifications);
   }
