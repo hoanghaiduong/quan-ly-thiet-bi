@@ -55,6 +55,10 @@ export class DailyDivision extends DateTimeEntity {
     @Column({ nullable: true })
     checkedBy: string;
 
+
+    @Column({ default: 3, type: 'int' })
+    status: number;//0 là chưa hoàn thành , 1 là hoàn thành , 2 là đang làm , 3 là chưa làm, 4 là chờ xác nhận
+
     @ManyToOne(() => Device, devices => devices.dailyVisions, { nullable: false })
     device: Device;
 
@@ -71,10 +75,15 @@ export class DailyDivision extends DateTimeEntity {
     // @ManyToOne(() => WorkStatus, workStatus => workStatus.dailyVisions, { nullable: false })
     // workStatus: WorkStatus;
 
- 
+
+    @BeforeUpdate()
+    async setStatuSyncWithRelation(): Promise<void> {
+        this.detailPlan.status = this.status;
+    }
+
     @BeforeInsert()
     @BeforeUpdate()
-    calculateTotalTime() {
+    calculateTotalTime(): void {
         if (this.startTime && this.estimateFinishTime) {
             const startTime = new Date(`1970-01-01 ${this.startTime}`);
             const finishTime = new Date(`1970-01-01 ${this.estimateFinishTime}`);
@@ -89,5 +98,5 @@ export class DailyDivision extends DateTimeEntity {
         }
     }
 
-   
+
 }

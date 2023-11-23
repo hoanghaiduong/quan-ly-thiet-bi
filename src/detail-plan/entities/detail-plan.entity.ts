@@ -33,8 +33,8 @@ export class DetailPlan extends DateTimeEntity {
     @Column({ default: 'PM' })//PM CM
     typePlan: string;
 
-    @Column({ default: 4, type: 'int' })
-    status: number;//0 là chưa hoàn thành , 1 là hoàn thành , 2 là đang làm , 3 là chưa làm
+    @Column({ default: 3, type: 'int' })
+    status: number;//0 là chưa hoàn thành , 1 là hoàn thành , 2 là đang làm , 3 là chưa làm, 4 là chờ xác nhận
 
     @ManyToOne(() => Device, devices => devices.detailPlans, { nullable: false })
     device: Device;

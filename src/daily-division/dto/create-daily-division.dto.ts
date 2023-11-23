@@ -1,7 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsString, IsNumber, IsOptional, IsISO8601, IsUUID } from 'class-validator';
+import { IsDate, IsString, IsNumber, IsOptional, IsISO8601, IsUUID, Min, Max } from 'class-validator';
 
 export class CreateDailyDivisionDto {
+    // Relationships
+    @ApiProperty({ example: 'example-device-id', description: 'Device related to the daily division.' })
+    @IsUUID()
+    deviceId: string;
+
+    @ApiProperty({ example: 'example-detail-plan-id', description: 'Plan related to the daily division.' })
+    @IsUUID()
+    detailPlanId: string;
+
+    @ApiProperty({ example: 'example-user-id', description: 'User related to the daily division.' })
+    @IsUUID()
+    userId: string;
+
     @ApiProperty({
         example: new Date(2023, 11, 20).toLocaleDateString(), description: ''
     })
@@ -58,18 +71,13 @@ export class CreateDailyDivisionDto {
     @IsUUID()
     checkedBy?: string;
 
-    // Relationships
-    @ApiProperty({ example: 'example-device-id', description: 'Device related to the daily division.' })
-    @IsUUID()
-    deviceId: string;
-
-    @ApiProperty({ example: 'example-detail-plan-id', description: 'Plan related to the daily division.' })
-    @IsUUID()
-    detailPlanId: string;
-
-    @ApiProperty({ example: 'example-user-id', description: 'User related to the daily division.' })
-    @IsUUID()
-    userId: string;
+    @ApiProperty({
+        example: 0,
+        type: 'integer',
+    })
+    @Min(0)
+    @Max(4)
+    status?: number;
 
     // @ApiProperty({ example: 'example-work-status-id', description: 'WorkStatus related to the daily division.' })
     // @IsString()
