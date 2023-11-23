@@ -66,7 +66,8 @@ export class DeviceService {
       },
       order: {
         code: pagination.order
-      }
+      },
+      loadRelationIds: true
     });
 
     const meta = new Meta({ itemCount, pagination });

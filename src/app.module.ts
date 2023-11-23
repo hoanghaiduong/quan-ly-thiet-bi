@@ -17,13 +17,14 @@ import { PlanModule } from './plan/plan.module';
 import { WorkStatusModule } from './work-status/work-status.module';
 import { DetailPlanModule } from './detail-plan/detail-plan.module';
 import { DailyDivisionModule } from './daily-division/daily-division.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
     isGlobal: true,
     validationSchema,
     envFilePath: [`.env`, `.env.${process.env.NODE_ENV}`], // load env
-  }), DatabaseModule, AuthModule, UserModule, StorageModule, DeviceTypesModule, DeviceModule, FactoryModule, PlanModule, WorkStatusModule, DetailPlanModule, DailyDivisionModule],
+  }), DatabaseModule, AuthModule, UserModule, StorageModule, DeviceTypesModule, DeviceModule, FactoryModule, PlanModule, WorkStatusModule, DetailPlanModule, DailyDivisionModule, NotificationModule],
   controllers: [AppController],
   providers: [AppService],
 })

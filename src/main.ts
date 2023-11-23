@@ -6,7 +6,7 @@ import { CorsConfig } from "./common/config/cors.config";
 import { SwaggerConfig } from "./common/config/swagger.config";
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as path from 'path';
-
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import { initializeTransactionalContext } from "typeorm-transactional";
 import { HttpExceptionFilter } from './common/exception/http-exception.filter';
 
@@ -24,6 +24,18 @@ async function bootstrap() {
 
   app.setGlobalPrefix("api", { exclude: [""] });
   CorsConfig.enableCors(app);
+
+  // Create an HTTP server to use with Socket.IO
+  // const httpServer = createServer(app.getHttpAdapter().getInstance());
+
+  // Configure Socket.IO with CORS
+  // const io = new Server(httpServer, {
+  //   cors: {
+  //     origin: '*', // Replace with your frontend origin
+  //     methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+  //   },
+  // });
+  // io.listen(configService.get<number>('port'))
   SwaggerConfig.init(app);
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(

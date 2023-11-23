@@ -15,6 +15,7 @@ import { ERelatedUser } from './type/type-query.enum';
 import * as bcrypt from 'bcrypt';
 import { ChangePasswordDTO } from './dto/change-password.dto';
 import { FilterUserDTO } from './dto/query-filter.dto';
+type RelatedUser = "factories" | "plans" | "dailyVisions" | "notifications"
 @Injectable()
 export class UserService {
   //     throw new ApiException(ErrorMessages.USER_NOT_FOUND);
@@ -80,14 +81,14 @@ export class UserService {
       throw new ApiException(ErrorMessages.BAD_REQUEST, "Error grant access admin")
     }
   }
-  async getRelation(id: string, relation?: string): Promise<User> {
+  async getRelation(id: string, relation?: string | RelatedUser[]): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: {
         id,
         isDeleted: false,
         isActived: true
       },
-      relations: [relation]
+      relations: typeof relation === "string" ? [relation] : relation
     })
     if (!user) throw new ApiException(ErrorMessages.USER_NOT_FOUND)
     return user;
@@ -159,6 +160,6 @@ export class UserService {
     return new PaginationModel(users, meta);
   }
   async getUsersStatistics(): Promise<any> {
-  //  const users=
+    //  const users=
   }
 }

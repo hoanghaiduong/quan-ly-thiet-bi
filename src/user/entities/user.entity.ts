@@ -6,6 +6,7 @@ import { Role } from "src/common/enum/auth";
 import { Factory } from "src/factory/entities/factory.entity";
 import { Plan } from "src/plan/entities/plan.entity";
 import { DailyDivision } from "src/daily-division/entities/daily-division.entity";
+import { Notification } from "src/notification/entities/notification.entity";
 
 @Entity('users')
 export class User extends DateTimeEntity {
@@ -69,4 +70,7 @@ export class User extends DateTimeEntity {
     plans: Plan[]
     @OneToMany(() => DailyDivision, dailyVision => dailyVision.user, { nullable: true })
     dailyVisions: DailyDivision[];
+
+    @OneToMany(() => Notification, notification => notification.user, { nullable: true })
+    notifications: Notification[]
 }
