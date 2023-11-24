@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, Query, U
 import { DetailPlanService } from './detail-plan.service';
 import { CreateDetailPlanDto } from './dto/create-detail-plan.dto';
 import { UpdateDetailPlanDto } from './dto/update-detail-plan.dto';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DetailPlan } from './entities/detail-plan.entity';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Pagination } from 'src/common/pagination/pagination.dto';
@@ -14,6 +14,8 @@ import { User } from 'src/user/entities/user.entity';
 import { ERelationShipDetailPlan, QueryDetailPlanDTO } from './dto/query.dto';
 import { QueryStatisticsDetailPlanDTO } from './dto/statistic-query.dto';
 import { Note } from 'src/common/decorator/description.decorator';
+import { QueryIdDto } from 'src/common/dto/query-id.dto';
+import { EDetailPlanFilter, FilterDetailPlanDTO } from './dto/filter-detail-plan.dto';
 
 @ApiTags("API Chi tiết kế hoạch")
 @Controller('detail-plan')
@@ -28,11 +30,20 @@ export class DetailPlanController {
     return await this.detailPlanService.create(createDetailPlanDto, user);
   }
 
-  @Get()
-  async findAll(@Query() pagination: Pagination): Promise<PaginationModel<DetailPlan>> {
-    return await this.detailPlanService.findAll(pagination);
+  @Get('get-details-by-plan')
+  async findAll(@Query() filter: FilterDetailPlanDTO, @Query() pagination: Pagination): Promise<PaginationModel<DetailPlan>> {
+    return await this.detailPlanService.findAll(filter, pagination);
   }
 
+  @Get()
+  @ApiQuery({
+    enum: EDetailPlanFilter,
+    name: 'column',
+    required: false
+  })
+  async getsDetailPlan(@Query() pagination: Pagination, @Query('column') filter?: EDetailPlanFilter): Promise<PaginationModel<DetailPlan>> {
+    return await this.detailPlanService.findAllDetailPlan(pagination, filter);
+  }
   @Get('plant-statisctics')
   @Note("API Thống kê chi tiết kế hoạch (bao gồm kế hoạch hoàn thành , chưa hoàn thành, đang làm,phần trăm hoàn thành của những thiết bị)")
   async detailPlanStatistics(@Query() { type }: QueryStatisticsDetailPlanDTO): Promise<any> {
@@ -43,7 +54,7 @@ export class DetailPlanController {
   async findOneWithRelation(@Query() { id, relation }: QueryDetailPlanDTO): Promise<DetailPlan> {
     let task: any;
     if (relation === ERelationShipDetailPlan.ALL) {
-      task = await this.detailPlanService.findOneWithRelationShip(id, ["dailyDivision", "device", "plan", "device.factory"]);
+      task = await this.detailPlanService.findOneWithRelationShip(id, ["dailyDivision", "device", "plan", "device.factory", "device.deviceType"]);
     }
     else {
       task = await this.detailPlanService.findOneWithRelationShip(id, [relation]);

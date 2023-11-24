@@ -30,7 +30,7 @@ export class Pagination {
 	@Transform(({ value }) => parseInt(value))
 	@IsInt()
 	@Min(1)
-	@Max(50)
+	@Max(100)
 	@IsOptional()
 	take?: number = 10;
 

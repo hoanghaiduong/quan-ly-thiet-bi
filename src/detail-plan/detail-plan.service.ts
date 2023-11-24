@@ -13,7 +13,8 @@ import { DeviceService } from 'src/device/device.service';
 import { User } from 'src/user/entities/user.entity';
 import { Role } from 'src/common/enum/auth';
 import { ETypePlan } from './dto/query.dto';
-type relationshipFind = "dailyDivision" | "plan" | "device" | "device.factory"
+import { EDetailPlanFilter, FilterDetailPlanDTO } from './dto/filter-detail-plan.dto';
+type relationshipFind = "dailyDivision" | "plan" | "device" | "device.factory" | "device.deviceType"
 @Injectable()
 export class DetailPlanService {
 
@@ -109,28 +110,87 @@ export class DetailPlanService {
 
   }
 
-  async findAll(pagination: Pagination): Promise<PaginationModel<DetailPlan>> {
-    const queryBuilder: SelectQueryBuilder<DetailPlan> = this.detailPlanRepository.createQueryBuilder('detailPlan');
-
-    queryBuilder
-      .take(pagination.take)
-      .skip(pagination.skip)
-      .orderBy('detailPlan.createdAt', pagination.order)
-      .leftJoinAndSelect('detailPlan.plan', 'plan')
-      .leftJoinAndSelect('detailPlan.device', 'device')
-      .leftJoinAndSelect('device.factory', 'factory') // Assuming 'factory' is the property name for the factory relationship in the Device entity
-      .leftJoinAndSelect('detailPlan.dailyDivision', 'daily_division');
-    if (pagination.search) {
+  async findAll(filter: FilterDetailPlanDTO, pagination: Pagination): Promise<PaginationModel<DetailPlan>> {
+    try {
+      const queryBuilder: SelectQueryBuilder<DetailPlan> = this.detailPlanRepository.createQueryBuilder('detailPlan');
+      const { planId, column } = filter;
       queryBuilder
-        .andWhere('(detailPlan.typePlan ILIKE :search OR detailPlan.specification ILIKE :search OR detailPlan.unit ILIKE :search OR detailPlan.notes ILIKE :search)', { search: `%${pagination.search}%` });
+        .take(pagination.take)
+        .skip(pagination.skip)
+        .where('detailPlan.plan.id = :planId', { planId })
+        // .leftJoinAndSelect('detailPlan.plan', 'plan')
+        .leftJoinAndSelect('detailPlan.device', 'device')
+        .leftJoinAndSelect('device.factory', 'factory') // Assuming 'factory' is the property name for the factory relationship in the Device entity
+        .leftJoinAndSelect('detailPlan.dailyDivision', 'dailyDivision');
+      if (pagination.search && column) {
+        if (column === EDetailPlanFilter.deviceId) {
+          // Convert the UUID to text before applying strict equality
+          queryBuilder.andWhere(`detailPlan.${column} = :search`, { search: pagination.search });
+        }
+        else if (column === EDetailPlanFilter.factoryId) {
+          // Use JoinAlias for nested relationship
+          queryBuilder.leftJoinAndSelect(column, 'factoryAlias') // Assuming 'factory' is the property name for the factory relationship in the Device entity
+          queryBuilder.andWhere(`factoryAlias.id = :search`, { search: pagination.search });
+        }
+        else if (column === EDetailPlanFilter.dailyDivision) {
+          // Use the correct alias in the WHERE clause
+          queryBuilder.andWhere(`${column} = :search`, { search: pagination.search });
+        }
+        else {
+          queryBuilder.andWhere(`detailPlan.${column} ILIKE :search`, { search: `%${pagination.search}%` });
+        }
+      }
+
+      queryBuilder.orderBy('detailPlan.createdAt', pagination.order)
+      const [entities, itemCount] = await queryBuilder.getManyAndCount();
+
+      const meta = new Meta({ itemCount, pagination });
+      return new PaginationModel<DetailPlan>(entities, meta);
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
-
-    const [entities, itemCount] = await queryBuilder.getManyAndCount();
-
-    const meta = new Meta({ itemCount, pagination });
-    return new PaginationModel<DetailPlan>(entities, meta);
   }
+  async findAllDetailPlan(pagination: Pagination, column?: EDetailPlanFilter): Promise<PaginationModel<DetailPlan>> {
+    try {
+      const queryBuilder: SelectQueryBuilder<DetailPlan> = this.detailPlanRepository.createQueryBuilder('detailPlan');
 
+      queryBuilder
+        .take(pagination.take)
+        .skip(pagination.skip)
+        .leftJoinAndSelect('detailPlan.device', 'device')
+        .leftJoinAndSelect('device.factory', 'factory') // Assuming 'factory' is the property name for the factory relationship in the Device entity
+        .leftJoinAndSelect('detailPlan.dailyDivision', 'dailyDivision');
+
+      if (pagination.search && column) {
+        if (pagination.search && column) {
+          if (column === EDetailPlanFilter.deviceId) {
+            // Convert the UUID to text before applying strict equality
+            queryBuilder.andWhere(`detailPlan.${column} = :search`, { search: pagination.search });
+          }
+          else if (column === EDetailPlanFilter.factoryId) {
+            // Use JoinAlias for nested relationship
+            queryBuilder.leftJoinAndSelect(column, 'factoryAlias') // Assuming 'factory' is the property name for the factory relationship in the Device entity
+            queryBuilder.andWhere(`factoryAlias.id = :search`, { search: pagination.search });
+          }
+          else if (column === EDetailPlanFilter.dailyDivision) {
+            // Use the correct alias in the WHERE clause
+            queryBuilder.andWhere(`${column} = :search`, { search: pagination.search });
+          }
+          else {
+            queryBuilder.andWhere(`detailPlan.${column} ILIKE :search`, { search: `%${pagination.search}%` });
+          }
+        }
+      }
+
+      queryBuilder.orderBy('detailPlan.createdAt', pagination.order)
+      const [entities, itemCount] = await queryBuilder.getManyAndCount();
+
+      const meta = new Meta({ itemCount, pagination });
+      return new PaginationModel<DetailPlan>(entities, meta);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
   async findOne(id: string): Promise<DetailPlan> {
     const detailPlan = await this.detailPlanRepository.findOne({
       where: {

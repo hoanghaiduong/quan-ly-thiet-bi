@@ -34,16 +34,19 @@ export class FactoryService {
       .take(pagination.take)
       .skip(pagination.skip)
       .where('factory.isDelete = :isDelete', { isDelete: false })
-      .leftJoin('factory.user', 'user');
+      .leftJoinAndSelect('factory.user', 'user')
+      .leftJoinAndSelect('factory.devices', 'devices')
+      .leftJoinAndSelect('devices.deviceType', 'deviceType');
 
 
     const { column } = filter;
     if (pagination.search && column) {
       queryBuilder.andWhere(`factory.${column} ILike :search`, { search: `%${pagination.search}%` })
+
     }
+    queryBuilder.orderBy(`factory.${column}`, pagination.order)
+    // queryBuilder.orderBy(`factory.facName`, pagination.order)
 
-
-    queryBuilder.orderBy('factory.facName', pagination.order)
 
     const [entities, itemCount] = await queryBuilder.getManyAndCount();
 
