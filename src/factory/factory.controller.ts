@@ -34,7 +34,18 @@ export class FactoryController {
   @ApiResponse({ status: 200, description: 'Returns a list of all factories.' })
   @Get()
   async findAll(@Query() pagination: Pagination, @Query() filter?: FactoryFilterDTO): Promise<PaginationModel<Factory>> {
-    return await this.factoryService.findAll(pagination, filter);
+    return await this.factoryService.findAll(pagination, null, filter);
+  }
+
+
+  @Note('Get all factories by User')
+  @ApiResponse({ status: 200, description: 'Returns a list of all factories.' })
+
+  @Roles(Role.CUSTOMER, Role.ADMIN, Role.ADMIN)
+  @UseGuards(JwtAuthGuard)
+  @Get('get-factories-by-user')
+  async findAllFactoryByUser(@Query() pagination: Pagination, @AuthUser() user: User, @Query() filter?: FactoryFilterDTO): Promise<PaginationModel<Factory>> {
+    return await this.factoryService.findAll(pagination, user, filter);
   }
 
   @ApiOperation({ summary: 'Get a factory by ID' })

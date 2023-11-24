@@ -1,9 +1,10 @@
+import { DateTimeEntity } from 'src/common/entities/DateTime.entity';
 import { Device } from 'src/device/entities/device.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 
 @Entity()
-export class Factory {
+export class Factory extends DateTimeEntity{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 

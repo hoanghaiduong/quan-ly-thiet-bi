@@ -7,6 +7,10 @@ export enum EFactoryFilterType {
     address = "address",
     phone = "phone",
     phone2 = "phone2",
+    user = "user",
+    RoleOfUser = "RoleOfUser",
+    devices = "DeviceId",
+    typeOfDevice = "TypeOfDevice"
 }
 
 
@@ -18,4 +22,5 @@ export class FactoryFilterDTO {
     @IsEnum(EFactoryFilterType)
     @IsOptional()
     column?: EFactoryFilterType = EFactoryFilterType.facName
+
 }

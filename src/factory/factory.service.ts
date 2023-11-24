@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateFactoryDto } from './dto/create-factory.dto';
 import { UpdateFactoryDto } from './dto/update-factory.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,6 +9,7 @@ import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Meta } from 'src/common/pagination/meta.dto';
 import { UserService } from 'src/user/user.service';
 import { EFactoryFilterType, FactoryFilterDTO } from './dto/factory-filter.dto';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class FactoryService {
@@ -26,27 +27,60 @@ export class FactoryService {
       throw new BadRequestException(error);
     }
   }
-
-  async findAll(pagination: Pagination, filter?: FactoryFilterDTO): Promise<PaginationModel<Factory>> {
-    const queryBuilder: SelectQueryBuilder<Factory> = this.factoryRepository.createQueryBuilder('factory');
-
+  async findAll(pagination: Pagination, user?: User, filter?: FactoryFilterDTO): Promise<PaginationModel<Factory>> {
+    const queryBuilder = this.factoryRepository.createQueryBuilder('factory');
     queryBuilder
       .take(pagination.take)
       .skip(pagination.skip)
-      .where('factory.isDelete = :isDelete', { isDelete: false })
-      .leftJoinAndSelect('factory.user', 'user')
-      .leftJoinAndSelect('factory.devices', 'devices')
-      .leftJoinAndSelect('devices.deviceType', 'deviceType');
-
-
-    const { column } = filter;
-    if (pagination.search && column) {
-      queryBuilder.andWhere(`factory.${column} ILike :search`, { search: `%${pagination.search}%` })
-
+    if (!user) {
+      queryBuilder
+        .where('factory.isDelete = :isDelete', { isDelete: false })
+        .leftJoinAndSelect('factory.user', 'user')
+        .leftJoinAndSelect('factory.devices', 'devices')
+        .leftJoinAndSelect('devices.deviceType', 'deviceType');
     }
-    queryBuilder.orderBy(`factory.${column}`, pagination.order)
-    // queryBuilder.orderBy(`factory.facName`, pagination.order)
+    else {
+      queryBuilder
+        .andWhere(`factory.user.id = :user`, { user: user.id })
+        .leftJoinAndSelect('factory.devices', 'devices')
+        .leftJoinAndSelect('devices.deviceType', 'deviceType');
+    }
 
+
+    if (filter) {
+      const { column } = filter;
+      if (column && pagination.search) {
+
+        // Depending on the filter type, you may need to adjust the WHERE clause accordingly
+        switch (column) {
+          case EFactoryFilterType.user:
+            queryBuilder.andWhere(`user.id = :search`, { search: pagination.search });
+            break;
+
+          case EFactoryFilterType.RoleOfUser:
+
+            queryBuilder.andWhere(`user.username ILIKE :search`, { search: `%${pagination.search}%` });
+
+            break;
+
+          case EFactoryFilterType.devices:
+            queryBuilder
+              .leftJoinAndSelect('factory.devices', 'device')
+              .andWhere(`device.id = :search`, { search: pagination.search });
+            break;
+
+          case EFactoryFilterType.typeOfDevice:
+
+            queryBuilder.andWhere(`deviceType.id = :search`, { search: pagination.search });
+            break;
+
+          default:
+            queryBuilder.andWhere(`factory.${column} ILIKE :search`, { search: `%${pagination.search}%` });
+            break;
+        }
+      }
+    }
+    queryBuilder.orderBy(`factory.createdAt`, pagination.order);
 
     const [entities, itemCount] = await queryBuilder.getManyAndCount();
 
