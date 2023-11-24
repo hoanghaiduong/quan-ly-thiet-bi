@@ -20,6 +20,11 @@ export class Device {
     photo: string;
 
     @Column({
+        nullable: true
+    })
+    location: string;
+
+    @Column({
         type: 'text',
         array: true,
         nullable: true
@@ -41,7 +46,7 @@ export class Device {
     isDeleted: boolean;
 
 
-    @ManyToOne(() => Factory, factories => factories, { nullable: false })
+    @ManyToOne(() => Factory, factories => factories, { nullable: false  })
     factory: Factory;
 
     @ManyToOne(() => DeviceType, deviceTypes => deviceTypes, { nullable: false })

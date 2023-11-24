@@ -43,7 +43,7 @@ export class DetailPlanController {
   async findOneWithRelation(@Query() { id, relation }: QueryDetailPlanDTO): Promise<DetailPlan> {
     let task: any;
     if (relation === ERelationShipDetailPlan.ALL) {
-      task = await this.detailPlanService.findOneWithRelationShip(id, ["dailyDivision", "device", "plan"]);
+      task = await this.detailPlanService.findOneWithRelationShip(id, ["dailyDivision", "device", "plan", "device.factory"]);
     }
     else {
       task = await this.detailPlanService.findOneWithRelationShip(id, [relation]);

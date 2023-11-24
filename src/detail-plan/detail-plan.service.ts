@@ -13,7 +13,7 @@ import { DeviceService } from 'src/device/device.service';
 import { User } from 'src/user/entities/user.entity';
 import { Role } from 'src/common/enum/auth';
 import { ETypePlan } from './dto/query.dto';
-type relationshipFind = "dailyDivision" | "plan" | "device"
+type relationshipFind = "dailyDivision" | "plan" | "device" | "device.factory"
 @Injectable()
 export class DetailPlanService {
 
@@ -116,9 +116,10 @@ export class DetailPlanService {
       .take(pagination.take)
       .skip(pagination.skip)
       .orderBy('detailPlan.createdAt', pagination.order)
-      .leftJoin('detailPlan.plan', 'plan')
-      .leftJoin('detailPlan.device', 'device')
-      .leftJoin('detailPlan.dailyDivision', 'daily_division');
+      .leftJoinAndSelect('detailPlan.plan', 'plan')
+      .leftJoinAndSelect('detailPlan.device', 'device')
+      .leftJoinAndSelect('device.factory', 'factory') // Assuming 'factory' is the property name for the factory relationship in the Device entity
+      .leftJoinAndSelect('detailPlan.dailyDivision', 'daily_division');
     if (pagination.search) {
       queryBuilder
         .andWhere('(detailPlan.typePlan ILIKE :search OR detailPlan.specification ILIKE :search OR detailPlan.unit ILIKE :search OR detailPlan.notes ILIKE :search)', { search: `%${pagination.search}%` });
@@ -143,6 +144,7 @@ export class DetailPlanService {
     return detailPlan;
   }
   async findOneWithRelationShip(id: string, relations?: relationshipFind[]): Promise<DetailPlan> {
+
     const detailPlan = await this.detailPlanRepository.findOne({
       where: {
         id,
