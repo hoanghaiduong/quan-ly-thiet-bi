@@ -34,7 +34,8 @@ export class DailyDivisionController {
   async create(@Body() dto: CreateDailyDivisionDto, @UploadedFiles() files?: {
     beforeImage: Express.Multer.File[],
     afterImage: Express.Multer.File[]
-  }): Promise<DailyDivision> {
+  }): Promise<DailyDivision | any> {
+
     return await this.dailyDivisionService.create({
       ...dto,
       beforeImage: files?.beforeImage,
@@ -53,7 +54,7 @@ export class DailyDivisionController {
   }
   @Get('get-one-relations')
   async findOneWithRelation(@Query() { id, filter }: FilterDailyDivisionDTO): Promise<DailyDivision> {
-    return await this.dailyDivisionService.findOneRelationControllerCustom(id,filter);
+    return await this.dailyDivisionService.findOneRelationControllerCustom(id, filter);
   }
   @Patch('update')
   async update(@Query('id') id: string, @Body() updateDailyDivisionDto: UpdateDailyDivisionDto): Promise<DailyDivision> {

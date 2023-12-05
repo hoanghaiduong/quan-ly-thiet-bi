@@ -5,7 +5,7 @@ import { Device } from 'src/device/entities/device.entity';
 import { Plan } from 'src/plan/entities/plan.entity';
 import { User } from 'src/user/entities/user.entity';
 import { WorkStatus } from 'src/work-status/entities/work-status.entity';
-import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class DailyDivision extends DateTimeEntity {
@@ -69,8 +69,9 @@ export class DailyDivision extends DateTimeEntity {
     @JoinColumn()
     detailPlan: DetailPlan;
 
-    @ManyToOne(() => User, users => users.dailyVisions, { nullable: false })
-    user: User;
+    @ManyToMany(() => User, users => users.dailyVisions)
+    @JoinTable()
+    users: User[];
 
     // @ManyToOne(() => WorkStatus, workStatus => workStatus.dailyVisions, { nullable: false })
     // workStatus: WorkStatus;

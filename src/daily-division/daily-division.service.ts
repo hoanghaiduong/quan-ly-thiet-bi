@@ -37,11 +37,13 @@ export class DailyDivisionService {
     private readonly storageService: StorageService, // Inject StorageService
   ) { }
 
-  async create(dto: CreateDailyDivisionDto): Promise<DailyDivision> {
+  async create(dto: CreateDailyDivisionDto): Promise<DailyDivision | any> {
+
+
     // Retrieve related entities
     const device = await this.deviceService.findOne(dto.deviceId);
     const detailPlan = await this.detailPlanService.findOne(dto.detailPlanId);
-    const user = await this.userService.getUserById(dto.userId);
+    const users = await this.userService.findByIds(dto.userIds);
 
     let afterImage: string[] = [];
     let beforeImage: string[] = [];
@@ -56,7 +58,7 @@ export class DailyDivisionService {
       ...dto,
       device,
       detailPlan,
-      user,
+      users,
       beforeImage,
       afterImage
     });
@@ -117,12 +119,12 @@ export class DailyDivisionService {
 
     const device = await this.deviceService.findOne(dto.deviceId);
     const detailPlan = await this.detailPlanService.findOne(dto.detailPlanId);
-    const user = await this.userService.getUserById(dto.userId);
+    const users = await this.userService.findByIds(dto.userIds);
 
     await this.userService.getUserById(dto.checkedBy);
     dailyDivision.device = device;
     dailyDivision.detailPlan = detailPlan;
-    dailyDivision.user = user;
+    dailyDivision.users = users;
     const merged = this.dailyDivisionRepository.merge(dailyDivision, dto);
     return await this.dailyDivisionRepository.save(merged);
   }

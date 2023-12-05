@@ -1,4 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import * as bcrypt from 'bcrypt';
 import { Exclude } from "class-transformer";
 import { DateTimeEntity } from "src/common/entities/DateTime.entity";
@@ -65,10 +65,12 @@ export class User extends DateTimeEntity {
     }
 
     @OneToMany(() => Factory, factories => factories.user, { nullable: true })
-    factories: Factory[]
+    factories: Factory[];
+
     @OneToMany(() => Plan, plan => plan.user, { nullable: true })
-    plans: Plan[]
-    @OneToMany(() => DailyDivision, dailyVision => dailyVision.user, { nullable: true })
+    plans: Plan[];
+
+    @ManyToMany(() => DailyDivision, dailyVision => dailyVision.users, { nullable: true })
     dailyVisions: DailyDivision[];
 
     @OneToMany(() => Notification, notification => notification.user, { nullable: true })

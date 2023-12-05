@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsString, IsNumber, IsOptional, IsISO8601, IsUUID, Min, Max } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsDate, IsString, IsNumber, IsOptional, IsISO8601, IsUUID, Min, Max, IsInt, IsArray } from 'class-validator';
 
 export class CreateDailyDivisionDto {
     // Relationships
@@ -11,9 +12,11 @@ export class CreateDailyDivisionDto {
     @IsUUID()
     detailPlanId: string;
 
-    @ApiProperty({ example: 'example-user-id', description: 'User related to the daily division.' })
-    @IsUUID()
-    userId: string;
+    @ApiProperty()
+    @IsArray()
+    @Transform(({ value }) => (typeof value === 'string' ? value.split(',').map(id => id.trim()) : value) ?? value)
+    // @IsUUID("all", { each: true })
+    userIds: string[];
 
     @ApiProperty({
         example: new Date(2023, 11, 20).toLocaleDateString(), description: ''
@@ -72,11 +75,14 @@ export class CreateDailyDivisionDto {
     checkedBy?: string;
 
     @ApiProperty({
-        example: 0,
-        type: 'integer',
+        example: 2,
+        minimum: 0,
+        maximum: 4,
+        type: Number
     })
-    @Min(0)
-    @Max(4)
+
+    @Transform(({ value }) => parseInt(value))
+    @IsInt()
     status?: number;
 
     // @ApiProperty({ example: 'example-work-status-id', description: 'WorkStatus related to the daily division.' })

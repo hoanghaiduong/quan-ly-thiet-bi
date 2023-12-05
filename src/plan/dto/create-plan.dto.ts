@@ -1,6 +1,7 @@
 // plan.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsBoolean, IsDate, IsISO8601, Min, Max } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsString, IsOptional, IsBoolean, IsDate, IsISO8601, Min, Max, IsInt } from 'class-validator';
 import { User } from 'src/user/entities/user.entity';
 
 export class CreatePlanDto {
@@ -17,11 +18,14 @@ export class CreatePlanDto {
     // @IsISO8601()
     endDate?: string;
     @ApiProperty({
-        example: 0,
-        required: false
+        example: 2,
+        minimum: 0,
+        maximum: 4,
+        type: Number
     })
-    @Min(0)
-    @Max(4)
+
+    @Transform(({ value }) => parseInt(value))
+    @IsInt()
     status?: number;
     @ApiProperty({ example: false, required: false, description: 'Whether the plan is deleted.' })
     @IsOptional()

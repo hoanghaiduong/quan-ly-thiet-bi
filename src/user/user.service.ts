@@ -1,9 +1,9 @@
-import { BadRequestException, ForbiddenException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ApiException } from 'src/common/exception/api.exception';
 import { ErrorMessages } from 'src/exception/error.code';
 import { Role } from 'src/common/enum/auth';
@@ -29,6 +29,20 @@ export class UserService {
 
   constructor(@InjectRepository(User) private usersRepository: Repository<User>) { }
 
+  async findByIds(userIds: string[]): Promise<User[]> {
+    try {
+      const users = await this.usersRepository.find({ where: { id: In(userIds) } });
+
+      if (!users || users.length !== userIds.length) {
+        const notFoundUserIds = userIds.filter((userId) => !users.some((user) => user.id === userId));
+        throw new NotFoundException(`Users not found for ids: ${notFoundUserIds.join(', ')}`);
+      }
+
+      return users;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
   async changePasswordByAdmin(id: string, dto: ChangePasswordDTO): Promise<User> {
     //Logger.debug((await bcrypt.hash(dto.oldPassword,10)))
     const user = await this.getUserById(id);
