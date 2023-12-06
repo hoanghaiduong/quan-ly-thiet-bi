@@ -50,6 +50,8 @@ export class DetailPlan extends DateTimeEntity {
     dailyDivision: DailyDivision;
 
     @BeforeUpdate()
+
+
     async CheckStatusExpect(): Promise<void> {
         const expectedDate = new Date(this.expectedDate);
         const planBeginDate = new Date(this.plan.beginDate);
@@ -67,6 +69,9 @@ export class DetailPlan extends DateTimeEntity {
                 this.status = 1;
             }
         }
+    }
+    async setStatuSyncWithRelation(): Promise<void> {
+        this.status = this.dailyDivision.status;
     }
 
 }

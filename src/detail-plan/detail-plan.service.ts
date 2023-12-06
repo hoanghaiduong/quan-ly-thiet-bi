@@ -1,9 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateDetailPlanDto } from './dto/create-detail-plan.dto';
 import { UpdateDetailPlanDto } from './dto/update-detail-plan.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DetailPlan } from './entities/detail-plan.entity';
-import { ILike, Repository, SelectQueryBuilder } from 'typeorm';
+import { ILike, Not, Repository, SelectQueryBuilder } from 'typeorm';
 import { Pagination } from 'src/common/pagination/pagination.dto';
 import { PaginationModel } from 'src/common/pagination/pagination.model';
 import { Meta } from 'src/common/pagination/meta.dto';
@@ -14,6 +14,8 @@ import { User } from 'src/user/entities/user.entity';
 import { Role } from 'src/common/enum/auth';
 import { ETypePlan } from './dto/query.dto';
 import { EDetailPlanFilter, FilterDetailPlanDTO } from './dto/filter-detail-plan.dto';
+import moment from 'moment';
+import { format } from 'date-fns';
 type relationshipFind = "dailyDivision" | "plan" | "device" | "device.factory" | "device.deviceType"
 @Injectable()
 export class DetailPlanService {
@@ -153,10 +155,12 @@ export class DetailPlanService {
   async findAllDetailPlan(pagination: Pagination, column?: EDetailPlanFilter): Promise<PaginationModel<DetailPlan>> {
     try {
       const queryBuilder: SelectQueryBuilder<DetailPlan> = this.detailPlanRepository.createQueryBuilder('detailPlan');
-
+   
       queryBuilder
         .take(pagination.take)
         .skip(pagination.skip)
+        .where('detailPlan.status != 1')
+        .andWhere('DATE(detailPlan.expectedDate) = :date', { date: new Date().toLocaleDateString() })
         .leftJoinAndSelect('detailPlan.device', 'device')
         .leftJoinAndSelect('device.factory', 'factory') // Assuming 'factory' is the property name for the factory relationship in the Device entity
         .leftJoinAndSelect('detailPlan.dailyDivision', 'dailyDivision');
