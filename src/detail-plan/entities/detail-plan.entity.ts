@@ -39,7 +39,7 @@ export class DetailPlan extends DateTimeEntity {
     @ManyToOne(() => Device, devices => devices.detailPlans, { nullable: false })
     device: Device;
 
-    @ManyToOne(() => Plan, plans => plans.detailPlans, { nullable: false })
+    @ManyToOne(() => Plan, plans => plans.detailPlans, { nullable: false, onDelete: 'CASCADE' })
     plan: Plan;
 
 

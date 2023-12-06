@@ -30,7 +30,7 @@ export class Plan extends DateTimeEntity {
     @ManyToOne(() => User, users => users.plans, { nullable: false })
     user: User;
 
-    @OneToMany(() => DetailPlan, detailPlan => detailPlan.plan, { nullable: true })
+    @OneToMany(() => DetailPlan, detailPlan => detailPlan.plan, { nullable: true ,onDelete:'SET NULL'})
     detailPlans: DetailPlan[];
     // @OneToMany(() => DailyDivision, dailyVision => dailyVision.plan, { nullable: true })
     // dailyVisions: DailyDivision[];

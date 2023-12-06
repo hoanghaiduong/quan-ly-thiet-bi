@@ -38,33 +38,39 @@ export class DailyDivisionService {
   ) { }
 
   async create(dto: CreateDailyDivisionDto): Promise<DailyDivision | any> {
+    let imagesToDelete: string[] = [];
+    try {
+      // Retrieve related entities
+      const device = await this.deviceService.findOne(dto.deviceId);
+      const detailPlan = await this.detailPlanService.findOne(dto.detailPlanId);
+      const users = await this.userService.findByIds(dto.userIds);
 
+      let afterImage: string[] = [];
+      let beforeImage: string[] = [];
+      if (dto.beforeImage) {
+        beforeImage = await this.storageService.uploadMultiFiles(`${ImageTypes.CARD_DAILY_DIVISION}/${ImageTypes.CARD_DAILY_DIVISION_DETAIL}/${device?.deviceName}/${EUpdateImageDailyVision.before}`, dto.beforeImage)
+      }
+      if (dto.afterImage) {
+        afterImage = await this.storageService.uploadMultiFiles(`${ImageTypes.CARD_DAILY_DIVISION}/${ImageTypes.CARD_DAILY_DIVISION_DETAIL}/${device?.deviceName}/${EUpdateImageDailyVision.after}`, dto.afterImage);
+      }
 
-    // Retrieve related entities
-    const device = await this.deviceService.findOne(dto.deviceId);
-    const detailPlan = await this.detailPlanService.findOne(dto.detailPlanId);
-    const users = await this.userService.findByIds(dto.userIds);
+      imagesToDelete.push(...afterImage, ...beforeImage);
+      // Create a new DailyDivision entity
+      const dailyDivision = this.dailyDivisionRepository.create({
+        ...dto,
+        device,
+        detailPlan,
+        users,
+        beforeImage,
+        afterImage
+      });
 
-    let afterImage: string[] = [];
-    let beforeImage: string[] = [];
-    if (dto.beforeImage) {
-      beforeImage = await this.storageService.uploadMultiFiles(`${ImageTypes.CARD_DAILY_DIVISION}/${ImageTypes.CARD_DAILY_DIVISION_DETAIL}/${device?.deviceName}/${EUpdateImageDailyVision.before}`, dto.beforeImage)
+      // Save the new DailyDivision entity to the database
+      return await this.dailyDivisionRepository.save(dailyDivision);
+    } catch (error) {
+      await this.storageService.deleteMultiFiles(imagesToDelete);
+      throw new BadRequestException(error.message)
     }
-    if (dto.afterImage) {
-      afterImage = await this.storageService.uploadMultiFiles(`${ImageTypes.CARD_DAILY_DIVISION}/${ImageTypes.CARD_DAILY_DIVISION_DETAIL}/${device?.deviceName}/${EUpdateImageDailyVision.after}`, dto.afterImage);
-    }
-    // Create a new DailyDivision entity
-    const dailyDivision = this.dailyDivisionRepository.create({
-      ...dto,
-      device,
-      detailPlan,
-      users,
-      beforeImage,
-      afterImage
-    });
-
-    // Save the new DailyDivision entity to the database
-    return await this.dailyDivisionRepository.save(dailyDivision);
   }
 
   async findAll(pagination: Pagination): Promise<PaginationModel<DailyDivision>> {
