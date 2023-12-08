@@ -1,8 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNumber, IsString, IsOptional, IsDate, IsISO8601, IsUUID, Min, Max, IsInt } from 'class-validator';
+import { User } from 'src/user/entities/user.entity';
 
 export class CreateDetailPlanDto {
+    @ApiProperty({ required: false })
+    userId?: string;
+
+
     @ApiProperty({ example: 1, description: 'The quantity of the detail plan.' })
     @IsNumber()
     quantity: number;

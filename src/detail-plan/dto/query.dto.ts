@@ -3,6 +3,7 @@ import { IsUUID } from "class-validator";
 
 export enum ERelationShipDetailPlan {
     device = "device",
+    user = "user",
     factoryOfDevice = "device.factory",
     deviceType = "device.deviceType",
     dailyDivision = "dailyDivision",

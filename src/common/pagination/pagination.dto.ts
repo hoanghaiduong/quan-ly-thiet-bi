@@ -23,14 +23,14 @@ export class Pagination {
 
 	@ApiPropertyOptional({
 		minimum: 1,
-		maximum: 50,
+		maximum: 10000,
 		default: 10,
 		type: Number,
 	})
 	@Transform(({ value }) => parseInt(value))
 	@IsInt()
 	@Min(1)
-	@Max(100)
+	@Max(10000)
 	@IsOptional()
 	take?: number = 10;
 

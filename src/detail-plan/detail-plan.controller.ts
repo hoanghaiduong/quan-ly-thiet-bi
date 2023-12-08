@@ -26,8 +26,8 @@ export class DetailPlanController {
   @Post('create')
   @Roles(Role.CUSTOMER, Role.ADMIN)
   @ApiResponse({ status: HttpStatus.CREATED, description: 'The detail plan has been successfully created.' })
-  async create(@Body() createDetailPlanDto: CreateDetailPlanDto, @AuthUser() user: User): Promise<DetailPlan> {
-    return await this.detailPlanService.create(createDetailPlanDto, user);
+  async create(@Body() dto: CreateDetailPlanDto, @AuthUser() user: User): Promise<DetailPlan> {
+    return await this.detailPlanService.create(dto, user.id);
   }
 
   @Get('get-details-by-plan')
@@ -54,7 +54,7 @@ export class DetailPlanController {
   async findOneWithRelation(@Query() { id, relation }: QueryDetailPlanDTO): Promise<DetailPlan> {
     let task: any;
     if (relation === ERelationShipDetailPlan.ALL) {
-      task = await this.detailPlanService.findOneWithRelationShip(id, ["dailyDivision", "device", "plan", "device.factory", "device.deviceType"]);
+      task = await this.detailPlanService.findOneWithRelationShip(id, ["dailyDivision", "device", "plan", "device.factory", "device.deviceType", "user"]);
     }
     else {
       task = await this.detailPlanService.findOneWithRelationShip(id, [relation]);

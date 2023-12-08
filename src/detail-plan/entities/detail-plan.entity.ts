@@ -4,6 +4,7 @@ import { DateTimeEntity } from 'src/common/entities/DateTime.entity';
 import { DailyDivision } from 'src/daily-division/entities/daily-division.entity';
 import { Device } from 'src/device/entities/device.entity';
 import { Plan } from 'src/plan/entities/plan.entity';
+import { User } from 'src/user/entities/user.entity';
 import { WorkStatus } from 'src/work-status/entities/work-status.entity';
 import { Column, Entity, PrimaryColumn, ManyToOne, JoinColumn, PrimaryGeneratedColumn, OneToOne, BeforeInsert, BeforeUpdate } from 'typeorm';
 
@@ -46,8 +47,10 @@ export class DetailPlan extends DateTimeEntity {
     // @ManyToOne(() => WorkStatus)
     // workStatus: WorkStatus;
     @OneToOne(() => DailyDivision, (dailyDivision) => dailyDivision.detailPlan)
-
     dailyDivision: DailyDivision;
+
+    @ManyToOne(() => User, users => users.detailPlans, { onDelete: 'CASCADE' })
+    user: User;
 
     @BeforeUpdate()
 

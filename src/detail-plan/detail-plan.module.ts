@@ -6,9 +6,10 @@ import { DetailPlan } from './entities/detail-plan.entity';
 import { DeviceModule } from 'src/device/device.module';
 import { PlanModule } from 'src/plan/plan.module';
 import { WorkStatusModule } from 'src/work-status/work-status.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([DetailPlan]),DeviceModule,PlanModule,WorkStatusModule],
+  imports: [TypeOrmModule.forFeature([DetailPlan]), DeviceModule, PlanModule, WorkStatusModule, UserModule],
   controllers: [DetailPlanController],
   providers: [DetailPlanService],
   exports: [DetailPlanService]

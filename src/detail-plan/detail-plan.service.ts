@@ -16,7 +16,8 @@ import { ETypePlan } from './dto/query.dto';
 import { EDetailPlanFilter, FilterDetailPlanDTO } from './dto/filter-detail-plan.dto';
 import moment from 'moment';
 import { format } from 'date-fns';
-type relationshipFind = "dailyDivision" | "plan" | "device" | "device.factory" | "device.deviceType"
+import { UserService } from 'src/user/user.service';
+type relationshipFind = "dailyDivision" | "plan" | "device" | "device.factory" | "device.deviceType" | "user"
 @Injectable()
 export class DetailPlanService {
 
@@ -25,19 +26,21 @@ export class DetailPlanService {
     private readonly detailPlanRepository: Repository<DetailPlan>,
     private readonly planService: PlanService,
     private readonly deviceService: DeviceService,
+    private readonly userService: UserService
   ) { }
 
-  async create(dto: CreateDetailPlanDto, user: User): Promise<DetailPlan> {
+  async create(dto: CreateDetailPlanDto, userId: string): Promise<DetailPlan> {
     try {
-      const [plan, device] = await Promise.all([
+      const [plan, device, user] = await Promise.all([
         this.planService.findOne(dto.planId),
         this.deviceService.findOne(dto.deviceId),
-
+        this.userService.getUserById(userId)
       ]);
       const detailPlan = this.detailPlanRepository.create({
         ...dto,
         plan,
         device,
+        user,
         typePlan: user.role === Role.ADMIN ? "PM" : "CM"
       });
       return await this.detailPlanRepository.save(detailPlan);
@@ -155,7 +158,7 @@ export class DetailPlanService {
   async findAllDetailPlan(pagination: Pagination, column?: EDetailPlanFilter): Promise<PaginationModel<DetailPlan>> {
     try {
       const queryBuilder: SelectQueryBuilder<DetailPlan> = this.detailPlanRepository.createQueryBuilder('detailPlan');
-   
+
       queryBuilder
         .take(pagination.take)
         .skip(pagination.skip)
@@ -163,7 +166,8 @@ export class DetailPlanService {
         .andWhere('DATE(detailPlan.expectedDate) = :date', { date: new Date().toLocaleDateString() })
         .leftJoinAndSelect('detailPlan.device', 'device')
         .leftJoinAndSelect('device.factory', 'factory') // Assuming 'factory' is the property name for the factory relationship in the Device entity
-        .leftJoinAndSelect('detailPlan.dailyDivision', 'dailyDivision');
+        .leftJoinAndSelect('detailPlan.user', 'user')
+        .leftJoinAndSelect('detailPlan.dailyDivision', 'dailyDivision')
 
       if (pagination.search && column) {
         if (pagination.search && column) {

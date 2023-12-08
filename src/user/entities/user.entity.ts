@@ -7,6 +7,7 @@ import { Factory } from "src/factory/entities/factory.entity";
 import { Plan } from "src/plan/entities/plan.entity";
 import { DailyDivision } from "src/daily-division/entities/daily-division.entity";
 import { Notification } from "src/notification/entities/notification.entity";
+import { DetailPlan } from "src/detail-plan/entities/detail-plan.entity";
 
 @Entity('users')
 export class User extends DateTimeEntity {
@@ -69,6 +70,8 @@ export class User extends DateTimeEntity {
 
     @OneToMany(() => Plan, plan => plan.user, { nullable: true })
     plans: Plan[];
+    @OneToMany(() => DetailPlan,detailPlan => detailPlan.user, { nullable: true })
+    detailPlans: DetailPlan[];
 
     @ManyToMany(() => DailyDivision, dailyVision => dailyVision.users, { nullable: true })
     dailyVisions: DailyDivision[];
