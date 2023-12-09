@@ -11,6 +11,9 @@ import { AuthUser } from 'src/common/decorator/user.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { CLonePlanDTO } from './dto/clone-plan-query.dto';
 import { QueryDateDTO } from 'src/common/dto/query-date.dto';
+import { Roles } from 'src/common/decorator/role.decorator';
+import { Role } from 'src/common/enum/auth';
+import { DetailPlan } from 'src/detail-plan/entities/detail-plan.entity';
 
 @ApiTags("API Kế hoạch")
 @Controller('plan')
@@ -32,6 +35,10 @@ export class PlanController {
   async clonePlanByMonth(@Query('month') month: number, @Query('year') year: number): Promise<Plan[]> {
     return await this.planService.clonePlanByMonth(month, year);
   }
+  @Post('get-plan-by-date')
+  async getPlanByDate(@Query() date: QueryDateDTO): Promise<Plan> {
+    return await this.planService.getPlanByDate(date);
+  }
   @Get()
   @ApiQuery({
     name: 'day',
@@ -50,6 +57,11 @@ export class PlanController {
     return await this.planService.findAll(pagination, date);
   }
 
+  @Roles(Role.CUSTOMER)
+  @Get('get-detailPlans-by-customer')
+  async findAllDetailPlansByCustomer(@AuthUser() user: User): Promise<DetailPlan[]> {
+    return await this.planService.findAllDetailPlansByCustomer(user);
+  }
   @Get('get')
   async findOne(@Query('id') id: string): Promise<Plan> {
     return await this.planService.findOne(id);

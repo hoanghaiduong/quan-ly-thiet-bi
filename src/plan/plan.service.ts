@@ -12,15 +12,23 @@ import { Meta } from 'src/common/pagination/meta.dto';
 import { isISO8601 } from 'class-validator';
 import { CLonePlanDTO } from './dto/clone-plan-query.dto';
 import { QueryDateDTO } from 'src/common/dto/query-date.dto';
+import { User } from 'src/user/entities/user.entity';
+import { DetailPlan } from 'src/detail-plan/entities/detail-plan.entity';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class PlanService {
 
+
   constructor(
     @InjectRepository(Plan)
     private readonly planRepository: Repository<Plan>,
+    private readonly userService: UserService
   ) { }
-
+  async findAllDetailPlansByCustomer(user: User): Promise<DetailPlan[]> {
+    const data = await this.userService.getRelation(user.id, ["detailPlans"]);
+    return data.detailPlans;
+  }
   async clonePlanByMonth(month: number, year: number): Promise<Plan[] | any> {
     // Tính ngày đầu tiên của tháng và ngày cuối cùng của tháng
     const firstDayOfMonth = new Date(year, month - 1, 1); // Month is zero-based
@@ -172,6 +180,40 @@ export class PlanService {
       throw new NotFoundException('Plan not found');
     }
     return plan;
+  }
+  async getPlanByDate(date: QueryDateDTO): Promise<Plan> {
+    const queryBuilder: SelectQueryBuilder<Plan> = this.planRepository.createQueryBuilder('plan');
+    const { day, month, year } = date;
+    if (day && month && year) {
+
+      const checkDate = new Date(year, month - 1, day).toLocaleDateString(); // assuming day, month, year are 1-indexed
+      Logger.debug(checkDate)
+      // queryBuilder.andWhere(':checkDate = plan.beginDate OR :checkDate = plan.endDate AND :checkDate >= plan.beginDate OR :checkDate <= plan.endDate', { checkDate });
+      queryBuilder.andWhere(':checkDate BETWEEN plan.beginDate AND plan.endDate', { checkDate });
+    }
+    else if (month !== undefined && year !== undefined) {
+      const firstDayOfMonth = new Date(year, month - 1, 1).toLocaleDateString();
+      const lastDayOfMonth = new Date(year, month, 0).toLocaleDateString();
+      //tìm trong tháng
+      queryBuilder.andWhere('plan.beginDate >= :firstDayOfMonth AND plan.endDate <= :lastDayOfMonth', {
+        firstDayOfMonth,
+        lastDayOfMonth,
+      });
+      //tìm cả ngoài tháng
+      // queryBuilder.andWhere('(DATE_TRUNC(\'month\', plan.beginDate) = :firstDayOfMonth OR DATE_TRUNC(\'month\', plan.endDate) = :firstDayOfMonth)', {
+      //   firstDayOfMonth,
+      // });
+    } else if (year !== undefined) {
+      const firstDayOfYear = new Date(year, 0, 1).toLocaleDateString();
+      const lastDayOfYear = new Date(year, 11, 31, 23, 59, 59).toLocaleDateString();
+      queryBuilder.andWhere('plan.beginDate >= :firstDayOfYear AND plan.endDate <= :lastDayOfYear', {
+        firstDayOfYear,
+        lastDayOfYear,
+      });
+    };
+    const plan = await queryBuilder.getOne();
+    if (!plan) throw new NotFoundException();
+    return plan
   }
 
   async update(id: string, updatePlanDto: UpdatePlanDto): Promise<Plan> {

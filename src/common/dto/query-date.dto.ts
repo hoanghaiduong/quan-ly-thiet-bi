@@ -5,13 +5,13 @@ export class QueryDateDTO {
     @ApiProperty({
         required: false
     })
-    day: number;
+    day?: number;
     @ApiProperty({
         required: false
     })
-    month: number;
+    month?: number;
     @ApiProperty({
         required: false
     })
-    year: number;
+    year?: number;
 }

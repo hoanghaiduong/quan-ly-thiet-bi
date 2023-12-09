@@ -16,6 +16,7 @@ import { QueryStatisticsDetailPlanDTO } from './dto/statistic-query.dto';
 import { Note } from 'src/common/decorator/description.decorator';
 import { QueryIdDto } from 'src/common/dto/query-id.dto';
 import { EDetailPlanFilter, FilterDetailPlanDTO } from './dto/filter-detail-plan.dto';
+import { CreateDetailPlanDtoByCustomer } from './dto/create-detail-plan-customer.dto';
 
 @ApiTags("API Chi tiết kế hoạch")
 @Controller('detail-plan')
@@ -29,11 +30,20 @@ export class DetailPlanController {
   async create(@Body() dto: CreateDetailPlanDto, @AuthUser() user: User): Promise<DetailPlan> {
     return await this.detailPlanService.create(dto, user.id);
   }
+  @Post('report-error')
+  @Roles(Role.CUSTOMER)
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'API Báo lỗi thiết bị chỉ dành cho customer' })
+  async reportError(@Body() dto: CreateDetailPlanDtoByCustomer, @AuthUser() user: User): Promise<DetailPlan> {
+    return await this.detailPlanService.reportError(dto, user.id);
+  }
 
   @Get('get-details-by-plan')
   async findAll(@Query() filter: FilterDetailPlanDTO, @Query() pagination: Pagination): Promise<PaginationModel<DetailPlan>> {
     return await this.detailPlanService.findAll(filter, pagination);
   }
+
+  
+ 
 
   @Get()
   @ApiQuery({

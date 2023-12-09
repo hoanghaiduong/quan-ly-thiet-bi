@@ -17,9 +17,11 @@ import { EDetailPlanFilter, FilterDetailPlanDTO } from './dto/filter-detail-plan
 import moment from 'moment';
 import { format } from 'date-fns';
 import { UserService } from 'src/user/user.service';
+import { CreateDetailPlanDtoByCustomer } from './dto/create-detail-plan-customer.dto';
 type relationshipFind = "dailyDivision" | "plan" | "device" | "device.factory" | "device.deviceType" | "user"
 @Injectable()
 export class DetailPlanService {
+
 
   constructor(
     @InjectRepository(DetailPlan)
@@ -28,7 +30,33 @@ export class DetailPlanService {
     private readonly deviceService: DeviceService,
     private readonly userService: UserService
   ) { }
+  async reportError(dto: CreateDetailPlanDtoByCustomer, userId: string): Promise<DetailPlan | any> {
+    try {
+      const currentDate = new Date();
+      const currentMonth = currentDate.toLocaleString('default', { month: 'numeric' });
 
+      const plan = await this.planService.getPlanByDate({
+        month: parseInt(currentMonth),
+        year: new Date().getFullYear()
+      });
+      const [device, user] = await Promise.all([
+        this.deviceService.findOne(dto.deviceId),
+        this.userService.getUserById(userId)
+      ]);
+      const detailPlan = this.detailPlanRepository.create({
+        ...dto,
+        plan,
+        device,
+        user,
+        typePlan: ETypePlan.CM
+      });
+      return await this.detailPlanRepository.save(detailPlan);
+
+    } catch (error) {
+      throw new BadRequestException(error);
+
+    }
+  }
   async create(dto: CreateDetailPlanDto, userId: string): Promise<DetailPlan> {
     try {
       const [plan, device, user] = await Promise.all([
