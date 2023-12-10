@@ -4,6 +4,7 @@ import { IsNumber, IsString, IsOptional, IsDate, IsISO8601, IsUUID, Min, Max, Is
 import { User } from 'src/user/entities/user.entity';
 
 export class CreateDetailPlanDto {
+    
     @ApiProperty({ required: false })
     userId?: string;
 

@@ -28,7 +28,7 @@ export class DetailPlanController {
   @Roles(Role.CUSTOMER, Role.ADMIN)
   @ApiResponse({ status: HttpStatus.CREATED, description: 'The detail plan has been successfully created.' })
   async create(@Body() dto: CreateDetailPlanDto, @AuthUser() user: User): Promise<DetailPlan> {
-    return await this.detailPlanService.create(dto, user.id);
+    return await this.detailPlanService.create(dto, user);
   }
   @Post('report-error')
   @Roles(Role.CUSTOMER)
@@ -42,8 +42,8 @@ export class DetailPlanController {
     return await this.detailPlanService.findAll(filter, pagination);
   }
 
-  
- 
+
+
 
   @Get()
   @ApiQuery({

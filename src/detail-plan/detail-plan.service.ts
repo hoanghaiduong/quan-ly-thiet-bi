@@ -57,19 +57,19 @@ export class DetailPlanService {
 
     }
   }
-  async create(dto: CreateDetailPlanDto, userId: string): Promise<DetailPlan> {
+  async create(dto: CreateDetailPlanDto,currentUser:User): Promise<DetailPlan> {
     try {
       const [plan, device, user] = await Promise.all([
         this.planService.findOne(dto.planId),
         this.deviceService.findOne(dto.deviceId),
-        this.userService.getUserById(userId)
+        this.userService.getUserById(dto.userId)
       ]);
       const detailPlan = this.detailPlanRepository.create({
         ...dto,
         plan,
         device,
         user,
-        typePlan: user.role === Role.ADMIN ? "PM" : "CM"
+        typePlan: currentUser.role === Role.ADMIN ? "PM" : "CM"
       });
       return await this.detailPlanRepository.save(detailPlan);
     } catch (error) {
