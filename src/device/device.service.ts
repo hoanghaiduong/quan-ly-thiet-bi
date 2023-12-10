@@ -89,12 +89,15 @@ export class DeviceService {
     return device;
   }
 
-  async update(id: string, updateDeviceDto: UpdateDeviceDto): Promise<Device> {
+  async update(id: string, dto: UpdateDeviceDto): Promise<Device> {
     const device = await this.findOne(id);
-    if (!device) {
-      throw new NotFoundException('Device not found');
-    }
-    this.deviceRepository.merge(device, updateDeviceDto);
+    const [factory, deviceType] = await Promise.all([
+      this.factoryService.findOne(dto.factoryId),
+      this.deviceTypeService.findOne(dto.deviceTypeId)
+    ])
+    device.factory = factory;
+    device.deviceType = deviceType;
+    this.deviceRepository.merge(device, dto);
     return await this.deviceRepository.save(device);
   }
 
