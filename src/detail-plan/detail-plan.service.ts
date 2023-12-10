@@ -57,7 +57,7 @@ export class DetailPlanService {
 
     }
   }
-  async create(dto: CreateDetailPlanDto,currentUser:User): Promise<DetailPlan> {
+  async create(dto: CreateDetailPlanDto, currentUser: User): Promise<DetailPlan> {
     try {
       const [plan, device, user] = await Promise.all([
         this.planService.findOne(dto.planId),
@@ -251,15 +251,15 @@ export class DetailPlanService {
     return detailPlan
   }
   async update(id: string, dto: UpdateDetailPlanDto): Promise<DetailPlan> {
-    const [plan, device] = await Promise.all([
+    const [plan, device, user] = await Promise.all([
       this.planService.findOne(dto.planId),
       this.deviceService.findOne(dto.deviceId),
-
+      this.userService.getUserById(dto.userId)
     ]);
     const detailPlan = await this.findOne(id); // Check if the detail plan exists
     detailPlan.plan = plan;
     detailPlan.device = device;
-
+    detailPlan.user = user;
     const merged = this.detailPlanRepository.merge(detailPlan, dto);
     return await this.detailPlanRepository.save(merged);
   }
