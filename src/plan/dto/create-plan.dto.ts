@@ -35,7 +35,6 @@ export class CreatePlanDto {
     @ApiProperty({ example: false, required: false, description: 'Status cop' })
     isCopy?: boolean;
 
-    user?: User;
 }
 
 // Add other DTOs as needed for related entities (User, DetailPlan, DailyDivision)

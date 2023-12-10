@@ -15,7 +15,7 @@ import { ERelatedUser } from './type/type-query.enum';
 import * as bcrypt from 'bcrypt';
 import { ChangePasswordDTO } from './dto/change-password.dto';
 import { FilterUserDTO } from './dto/query-filter.dto';
-type RelatedUser = "factories" | "plans" | "dailyVisions" | "notifications" | "detailPlans"
+type RelatedUser = "factories"  | "dailyVisions" | "notifications" | "detailPlans"
 @Injectable()
 export class UserService {
   //     throw new ApiException(ErrorMessages.USER_NOT_FOUND);

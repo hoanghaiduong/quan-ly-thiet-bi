@@ -23,8 +23,8 @@ export class PlanController {
 
   @Post('create')
   @ApiResponse({ status: 201, description: 'The plan has been successfully created.' })
-  async create(@Body() dto: CreatePlanDto, @AuthUser() user: User): Promise<Plan> {
-    return this.planService.create({ ...dto, user });
+  async create(@Body() dto: CreatePlanDto): Promise<Plan> {
+    return this.planService.create(dto);
   }
 
   @Post('clone-plan')
@@ -59,8 +59,8 @@ export class PlanController {
 
   @Roles(Role.CUSTOMER)
   @Get('get-detailPlans-by-customer')
-  async findAllDetailPlansByCustomer(@AuthUser() user: User): Promise<DetailPlan[]> {
-    return await this.planService.findAllDetailPlansByCustomer(user);
+  async findAllDetailPlansByCustomer(@Query() pagination: Pagination, @Query() date: QueryDateDTO, @AuthUser() user: User): Promise<PaginationModel<Plan>> {
+    return await this.planService.findAllDetailPlansByCustomer(pagination, date, user);
   }
   @Get('get')
   async findOne(@Query('id') id: string): Promise<Plan> {

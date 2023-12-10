@@ -25,9 +25,73 @@ export class PlanService {
     private readonly planRepository: Repository<Plan>,
     private readonly userService: UserService
   ) { }
-  async findAllDetailPlansByCustomer(user: User): Promise<DetailPlan[]> {
-    const data = await this.userService.getRelation(user.id, ["detailPlans"]);
-    return data.detailPlans;
+  async findAllDetailPlansByCustomer(pagination: Pagination, date: QueryDateDTO, user: User): Promise<PaginationModel<Plan>> {
+    const queryBuilder: SelectQueryBuilder<Plan> = this.planRepository.createQueryBuilder('plan');
+
+    queryBuilder.where('plan.isDelete = :isDelete', { isDelete: false })
+      .andWhere('user.id = :userId', { userId: user.id })
+      .innerJoinAndSelect('plan.detailPlans', 'detailPlan')
+      .innerJoin('detailPlan.user', 'user')
+
+
+    //  .andWhere('plan.user = :user', { user: user.id })
+    //  .leftJoinAndSelect('plan.user', 'user')
+    //  .leftJoinAndSelect('user.detailPlans', '.detailPlans')
+
+    // let checkDate = pagination.options;
+    // if (checkDate) {
+    //   queryBuilder.andWhere(
+    //     '((:checkDate >= plan.beginDate AND :checkDate <= plan.endDate) OR (:checkDate >= plan.beginDate AND plan.endDate IS NULL))',
+    //     { checkDate },
+    //   );
+    // }
+    const { day, month, year } = date;
+
+    if (day && month && year) {
+
+      const checkDate = new Date(year, month - 1, day).toLocaleDateString(); // assuming day, month, year are 1-indexed
+      Logger.debug(checkDate)
+      // queryBuilder.andWhere(':checkDate = plan.beginDate OR :checkDate = plan.endDate AND :checkDate >= plan.beginDate OR :checkDate <= plan.endDate', { checkDate });
+      queryBuilder.andWhere(':checkDate BETWEEN plan.beginDate AND plan.endDate', { checkDate });
+    }
+    else if (month !== undefined && year !== undefined) {
+      const firstDayOfMonth = new Date(year, month - 1, 1).toLocaleDateString();
+      const lastDayOfMonth = new Date(year, month, 0).toLocaleDateString();
+      //tìm trong tháng
+      queryBuilder.andWhere('plan.beginDate >= :firstDayOfMonth AND plan.endDate <= :lastDayOfMonth', {
+        firstDayOfMonth,
+        lastDayOfMonth,
+      });
+      //tìm cả ngoài tháng
+      // queryBuilder.andWhere('(DATE_TRUNC(\'month\', plan.beginDate) = :firstDayOfMonth OR DATE_TRUNC(\'month\', plan.endDate) = :firstDayOfMonth)', {
+      //   firstDayOfMonth,
+      // });
+    } else if (year !== undefined) {
+      const firstDayOfYear = new Date(year, 0, 1).toLocaleDateString();
+      const lastDayOfYear = new Date(year, 11, 31, 23, 59, 59).toLocaleDateString();
+      queryBuilder.andWhere('plan.beginDate >= :firstDayOfYear AND plan.endDate <= :lastDayOfYear', {
+        firstDayOfYear,
+        lastDayOfYear,
+      });
+    }
+
+    const [entities, itemCount] = await queryBuilder
+      .orderBy({
+        'plan.beginDate': pagination.order, // Sắp xếp theo beginDate
+        'plan.endDate': pagination.order,   // Sắp xếp theo endDate
+        'plan.createdAt': pagination.order, // Sắp xếp theo createdAt (nếu cần)
+      })
+      .skip(pagination.skip)
+      .take(pagination.take)
+      .loadAllRelationIds()
+      .getManyAndCount();
+
+    const meta = new Meta({
+      itemCount,
+      pagination,
+    });
+
+    return new PaginationModel<Plan>(entities, meta);
   }
   async clonePlanByMonth(month: number, year: number): Promise<Plan[] | any> {
     // Tính ngày đầu tiên của tháng và ngày cuối cùng của tháng
@@ -174,7 +238,7 @@ export class PlanService {
         isDelete: false,
         id,
       },
-      relations: ['detailPlans', 'user']
+      relations: ['detailPlans']
     });
     if (!plan) {
       throw new NotFoundException('Plan not found');

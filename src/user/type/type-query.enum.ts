@@ -1,3 +1,3 @@
 export enum ERelatedUser {
-    factories = "factories", plans = "plans", dailyVisions = "dailyVisions", notifications = "notifications", detailPlans = "detailPlans"
+    factories = "factories", dailyVisions = "dailyVisions", notifications = "notifications", detailPlans = "detailPlans"
 }

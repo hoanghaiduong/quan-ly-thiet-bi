@@ -68,8 +68,8 @@ export class User extends DateTimeEntity {
     @OneToMany(() => Factory, factories => factories.user, { nullable: true })
     factories: Factory[];
 
-    @OneToMany(() => Plan, plan => plan.user, { nullable: true })
-    plans: Plan[];
+    // @OneToMany(() => Plan, plan => plan.user, { nullable: true })
+    // plans: Plan[];
     @OneToMany(() => DetailPlan,detailPlan => detailPlan.user, { nullable: true })
     detailPlans: DetailPlan[];
 

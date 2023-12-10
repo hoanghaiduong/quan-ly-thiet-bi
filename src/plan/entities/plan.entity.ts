@@ -27,8 +27,7 @@ export class Plan extends DateTimeEntity {
 
     @Column({ nullable: true, default: false })
     isCopy: boolean
-    @ManyToOne(() => User, users => users.plans, { nullable: false })
-    user: User;
+   
 
     @OneToMany(() => DetailPlan, detailPlan => detailPlan.plan, { nullable: true ,onDelete:'SET NULL'})
     detailPlans: DetailPlan[];
