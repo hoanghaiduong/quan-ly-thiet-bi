@@ -28,12 +28,12 @@ export class PlanService {
   async findAllDetailPlansByCustomer(pagination: Pagination, date: QueryDateDTO, user: User): Promise<PaginationModel<Plan>> {
     const queryBuilder: SelectQueryBuilder<Plan> = this.planRepository.createQueryBuilder('plan');
 
-    queryBuilder.where('plan.isDelete = :isDelete', { isDelete: false })
-      .andWhere('user.id = :userId', { userId: user.id })
+
+    queryBuilder
+      .where('plan.isDelete = :isDelete', { isDelete: false })
       .innerJoinAndSelect('plan.detailPlans', 'detailPlan')
       .innerJoin('detailPlan.user', 'user')
-
-
+      .andWhere('user.id = :userId', { userId: user.id });
     //  .andWhere('plan.user = :user', { user: user.id })
     //  .leftJoinAndSelect('plan.user', 'user')
     //  .leftJoinAndSelect('user.detailPlans', '.detailPlans')
