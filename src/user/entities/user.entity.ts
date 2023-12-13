@@ -32,6 +32,11 @@ export class User extends DateTimeEntity {
     })
     avatar: string;
 
+    @Column({
+        nullable: true,
+    })
+    fullName: string;
+
     @Column({ nullable: true })
     phoneNumber: string;
 
@@ -70,7 +75,7 @@ export class User extends DateTimeEntity {
 
     // @OneToMany(() => Plan, plan => plan.user, { nullable: true })
     // plans: Plan[];
-    @OneToMany(() => DetailPlan,detailPlan => detailPlan.user, { nullable: true })
+    @OneToMany(() => DetailPlan, detailPlan => detailPlan.user, { nullable: true })
     detailPlans: DetailPlan[];
 
     @ManyToMany(() => DailyDivision, dailyVision => dailyVision.users, { nullable: true })

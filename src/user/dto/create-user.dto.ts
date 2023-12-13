@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Role } from 'src/common/enum/auth';
 
 export class CreateUserDto {
+
   @ApiProperty({ example: 'john_doe', description: 'The username of the user.' })
   @IsString()
   username: string;
@@ -35,6 +36,11 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   refreshToken?: string;
+  @ApiProperty({
+    required: false,
+    example: 'fullname',
+  })
+  fullName?: string;
 
   @ApiProperty({ example: '123 Main St', description: 'The address of the user.' })
   @IsOptional()
