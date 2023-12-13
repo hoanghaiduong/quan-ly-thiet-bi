@@ -5,6 +5,7 @@ import { IsEnum, IsOptional } from "class-validator";
 enum FilterColumnOperator {
   role = 'role',
   username = 'username',
+  fullName = 'fullName',
   email = 'email',
   phoneNumber = 'phoneNumber',
   phoneNumber2 = 'phoneNumber2',
