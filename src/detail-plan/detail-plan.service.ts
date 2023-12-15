@@ -248,34 +248,24 @@ export class DetailPlanService {
       relations
     })
     if (!detailPlan) throw new NotFoundException(`Detail Plan not found`)
-    const currentDate = new Date();
-    if (detailPlan.dailyDivision) {
-
-      // Assuming detailPlan.dailyDivision is an object and not a boolean
-      if (detailPlan.dailyDivision.completedDate) {
-        // Convert completedDate string to a Date object
-        const completedDate = new Date(detailPlan.dailyDivision.completedDate);
-
-        // Convert Plan.beginDate string to a Date object
-        const planBeginDate = new Date(detailPlan.plan.beginDate);
-        const planEndDate = new Date(detailPlan.plan.endDate);
-
-        // Check if the converted completedDate is within the plan date range
-        if (completedDate >= planBeginDate && completedDate <= planEndDate) {
-          detailPlan.status = 1;
-        }
-      } else {
-        if (new Date(detailPlan.expectedDate) > currentDate) {
-          detailPlan.status = 0;
-        } else if (new Date(detailPlan.expectedDate) === currentDate) {
-          detailPlan.status = 2;
-        } else if (new Date(detailPlan.expectedDate) < currentDate) {
-          detailPlan.status = 3;
-        }
-      }
-
-      detailPlan.dailyDivision.status = detailPlan.status;
+    const currentDate = new Date().toLocaleDateString();
+    if (detailPlan.dailyDivision !== null) {
+      detailPlan.status = 1;
+      detailPlan.status = detailPlan.dailyDivision.status;
     }
+    else {
+      const expectedDate = new Date(detailPlan.expectedDate).toLocaleDateString('default');
+
+      if (currentDate > expectedDate) {
+        detailPlan.status = 0;
+      } else if (expectedDate === currentDate) {
+        detailPlan.status = 2;
+      } else if (currentDate < expectedDate) {
+        detailPlan.status = 3;
+      }
+    }
+
+    await this.detailPlanRepository.save(detailPlan)
     return detailPlan
   }
   async update(id: string, dto: UpdateDetailPlanDto): Promise<DetailPlan> {

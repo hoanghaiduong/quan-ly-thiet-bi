@@ -1,5 +1,6 @@
 // detail-plan.entity.ts
 
+import { Logger } from '@nestjs/common';
 import { DateTimeEntity } from 'src/common/entities/DateTime.entity';
 import { DailyDivision } from 'src/daily-division/entities/daily-division.entity';
 import { Device } from 'src/device/entities/device.entity';
@@ -56,9 +57,10 @@ export class DetailPlan extends DateTimeEntity {
 
 
     async CheckStatusExpect(): Promise<void> {
-        const expectedDate = new Date(this.expectedDate);
-        const planBeginDate = new Date(this.plan.beginDate);
-        const planEndDate = new Date(this.plan.endDate);
+
+        const expectedDate = new Date(this.expectedDate).toLocaleDateString();
+        const planBeginDate = new Date(this.plan.beginDate).toLocaleDateString();
+        const planEndDate = new Date(this.plan.endDate).toLocaleDateString();
 
         if (expectedDate > planEndDate) {
             this.status = 0;
@@ -67,13 +69,13 @@ export class DetailPlan extends DateTimeEntity {
         } else if (expectedDate < planBeginDate) {
             this.status = 3;
         } else {
-            const completedDate = new Date(this.dailyDivision.completedDate);
+            const completedDate = new Date(this.dailyDivision.completedDate).toLocaleDateString();
             if (completedDate >= planBeginDate && completedDate <= planEndDate) {
                 this.status = 1;
             }
         }
+        Logger.debug("ExpectedDate" + expectedDate + "Plan begin Date" + planBeginDate + "|" + "Plan End Date" + planEndDate)
 
-        this.status = this.dailyDivision.status;
     }
 
 }
