@@ -58,23 +58,39 @@ export class DetailPlan extends DateTimeEntity {
 
     async CheckStatusExpect(): Promise<void> {
 
-        const expectedDate = new Date(this.expectedDate).toLocaleDateString();
-        const planBeginDate = new Date(this.plan.beginDate).toLocaleDateString();
-        const planEndDate = new Date(this.plan.endDate).toLocaleDateString();
+        // const expectedDate = new Date(this.expectedDate).toLocaleDateString();
+        // const planBeginDate = new Date(this.plan.beginDate).toLocaleDateString();
+        // const planEndDate = new Date(this.plan.endDate).toLocaleDateString();
 
-        if (expectedDate > planEndDate) {
-            this.status = 0;
-        } else if (expectedDate <= planEndDate && expectedDate >= planBeginDate) {
-            this.status = 2;
-        } else if (expectedDate < planBeginDate) {
-            this.status = 3;
-        } else {
-            const completedDate = new Date(this.dailyDivision.completedDate).toLocaleDateString();
-            if (completedDate >= planBeginDate && completedDate <= planEndDate) {
-                this.status = 1;
+        // if (expectedDate > planEndDate) {
+        //     this.status = 0;
+        // } else if (expectedDate <= planEndDate && expectedDate >= planBeginDate) {
+        //     this.status = 2;
+        // } else if (expectedDate < planBeginDate) {
+        //     this.status = 3;
+        // } else {
+        //     const completedDate = new Date(this.dailyDivision.completedDate).toLocaleDateString();
+        //     if (completedDate >= planBeginDate && completedDate <= planEndDate) {
+        //         this.status = 1;
+        //     }
+        // }
+        // Logger.debug("ExpectedDate" + expectedDate + "Plan begin Date" + planBeginDate + "|" + "Plan End Date" + planEndDate)
+        const currentDate = new Date().toLocaleDateString();
+        if (this.dailyDivision !== null) {
+            this.status = 1;
+            this.status = this.dailyDivision.status;
+        }
+        else {
+            const expectedDate = new Date(this.expectedDate).toLocaleDateString('default');
+            Logger.debug(currentDate > expectedDate, currentDate + "|" + expectedDate)
+            if (currentDate > expectedDate) {
+                this.status = 0;
+            } else if (expectedDate === currentDate) {
+                this.status = 2;
+            } else if (currentDate < expectedDate) {
+                this.status = 3;
             }
         }
-        Logger.debug("ExpectedDate" + expectedDate + "Plan begin Date" + planBeginDate + "|" + "Plan End Date" + planEndDate)
 
     }
 

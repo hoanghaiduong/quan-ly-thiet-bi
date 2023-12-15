@@ -255,7 +255,7 @@ export class DetailPlanService {
     }
     else {
       const expectedDate = new Date(detailPlan.expectedDate).toLocaleDateString('default');
-
+      Logger.debug(currentDate > expectedDate, currentDate + "|"+expectedDate)
       if (currentDate > expectedDate) {
         detailPlan.status = 0;
       } else if (expectedDate === currentDate) {
