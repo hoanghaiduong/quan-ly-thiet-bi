@@ -30,7 +30,7 @@ export class UserController {
   }
 
   @Get('gets')
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.CUSTOMER, Role.TECHNICAL)
   @UseGuards(JwtAuthGuard)
 
   @Note('Lấy thông tin tất cả người dùng')
