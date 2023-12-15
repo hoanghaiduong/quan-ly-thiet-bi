@@ -93,10 +93,9 @@ export class DailyDivision extends DateTimeEntity {
             // Calculate total time in hours
             this.totalTime = timeDifference / (1000 * 60 * 60);
         } else {
-
-
             this.totalTime = null; // or set it to any default value based on your requirement
         }
+        this.detailPlan.status = this.status;
     }
 
 

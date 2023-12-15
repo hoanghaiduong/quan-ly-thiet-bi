@@ -72,8 +72,7 @@ export class DetailPlan extends DateTimeEntity {
                 this.status = 1;
             }
         }
-    }
-    async setStatuSyncWithRelation(): Promise<void> {
+
         this.status = this.dailyDivision.status;
     }
 
