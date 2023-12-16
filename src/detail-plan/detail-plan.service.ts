@@ -255,7 +255,7 @@ export class DetailPlanService {
     }
     else {
       const expectedDate = new Date(detailPlan.expectedDate).toLocaleDateString('default');
-      Logger.debug(currentDate > expectedDate, currentDate + "|"+expectedDate)
+      Logger.debug(currentDate > expectedDate, currentDate + "|" + expectedDate)
       if (currentDate > expectedDate) {
         detailPlan.status = 0;
       } else if (expectedDate === currentDate) {
@@ -268,13 +268,26 @@ export class DetailPlanService {
     await this.detailPlanRepository.save(detailPlan)
     return detailPlan
   }
+  async findOneRelations(id: string): Promise<DetailPlan> {
+
+    const detailPlan = await this.detailPlanRepository.findOne({
+      where: {
+        id,
+      },
+      relations: ["dailyDivision", "plan", "device", "user"]
+    })
+    if (!detailPlan) {
+      throw new NotFoundException('Detail Plan not found');
+    }
+    return detailPlan
+  }
   async update(id: string, dto: UpdateDetailPlanDto): Promise<DetailPlan> {
     const [plan, device, user] = await Promise.all([
       this.planService.findOne(dto.planId),
       this.deviceService.findOne(dto.deviceId),
       this.userService.getUserById(dto.userId)
     ]);
-    const detailPlan = await this.findOne(id); // Check if the detail plan exists
+    const detailPlan = await this.findOneRelations(id); // Check if the detail plan exists
     detailPlan.plan = plan;
     detailPlan.device = device;
     detailPlan.user = user;

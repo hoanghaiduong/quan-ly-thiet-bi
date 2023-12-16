@@ -47,7 +47,7 @@ export class DetailPlan extends DateTimeEntity {
 
     // @ManyToOne(() => WorkStatus)
     // workStatus: WorkStatus;
-    @OneToOne(() => DailyDivision, (dailyDivision) => dailyDivision.detailPlan)
+    @OneToOne(() => DailyDivision, dailyDivision => dailyDivision.detailPlan)
     dailyDivision: DailyDivision;
 
     @ManyToOne(() => User, users => users.detailPlans, { onDelete: 'CASCADE' })
@@ -82,7 +82,7 @@ export class DetailPlan extends DateTimeEntity {
         }
         else {
             const expectedDate = new Date(this.expectedDate).toLocaleDateString('default');
-            Logger.debug(currentDate > expectedDate, currentDate + "|" + expectedDate)
+        //    Logger.debug(currentDate > expectedDate, currentDate + "|" + expectedDate)
             if (currentDate > expectedDate) {
                 this.status = 0;
             } else if (expectedDate === currentDate) {
